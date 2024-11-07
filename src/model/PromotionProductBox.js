@@ -7,6 +7,10 @@ class PromotionProductBox {
     this.#productBox = productBox;
     this.#promotion = promotion;
   }
+
+  getInfo() {
+    return `${this.#productBox.getInfo()} ${this.#promotion}`;
+  }
 }
 
 export default PromotionProductBox;
