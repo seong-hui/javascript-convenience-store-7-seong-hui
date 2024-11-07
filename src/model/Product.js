@@ -19,6 +19,10 @@ class Product {
   getInfo() {
     return `- ${this.#name} ${this.#price}원`;
   }
+
+  matchNameAndPrice(name, price) {
+    return this.#name === name && this.#price === parseInt(price, 10);
+  }
 }
 
 export default Product;

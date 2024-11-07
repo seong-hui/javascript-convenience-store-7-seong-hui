@@ -12,9 +12,7 @@ class ProductController {
   static createAllProductBoxes(productRecords, products) {
     const allProductBoxes = [];
     productRecords.forEach(({ name, price, quantity, promotion }) => {
-      const product = products.find(
-        (product) => product.getName() === name && product.getPrice() === parseInt(price, 10),
-      );
+      const product = products.find((product) => product.matchNameAndPrice(name, price));
       const productBox = new ProductBox(product, quantity);
 
       if (promotion !== 'null') {
