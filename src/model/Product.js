@@ -1,3 +1,5 @@
+import formatPriceWithUnit from '../utils/formatPriceWithUnit.js';
+
 class Product {
   #name;
 
@@ -17,7 +19,7 @@ class Product {
   }
 
   getDetails() {
-    return `${this.#name} ${this.#price}원`;
+    return `${this.#name} ${formatPriceWithUnit(this.#price)}`;
   }
 
   matchNameAndPrice(name, price) {
