@@ -26,6 +26,19 @@ class ProductController {
     });
     return allProductBoxes;
   }
+
+  static getProductDetailbyType(allProductBoxes) {
+    return allProductBoxes.map((productBox) => {
+      if (productBox instanceof PromotionProductBox) return productBox.getInfo();
+      if (productBox instanceof ProductBox) return productBox.getInfo();
+      return '';
+    });
+  }
+
+  static printProducts(allProductBoxes, outputView) {
+    const productDetails = ProductController.getProductDetailbyType(allProductBoxes);
+    outputView.printProducts(productDetails);
+  }
 }
 
 export default ProductController;
