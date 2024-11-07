@@ -7,7 +7,7 @@ const OutputView = {
 
   printProducts(productDetails) {
     productDetails.forEach((productDetail) => {
-      MissionUtils.Console.print(productDetail);
+      MissionUtils.Console.print(`- ${productDetail}`);
     });
   },
 };

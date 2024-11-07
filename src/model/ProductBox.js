@@ -8,8 +8,8 @@ class ProductBox {
     this.#quantity = parseInt(quantity, 10);
   }
 
-  getInfo() {
-    return `${this.#product.getInfo()} ${this.#quantity}개`;
+  getDetails() {
+    return `${this.#product.getDetails()} ${this.#quantity}개`;
   }
 }
 

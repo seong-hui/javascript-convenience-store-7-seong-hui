@@ -8,8 +8,8 @@ class PromotionProductBox {
     this.#promotion = promotion;
   }
 
-  getInfo() {
-    return `${this.#productBox.getInfo()} ${this.#promotion}`;
+  getDetails() {
+    return `${this.#productBox.getDetails()} ${this.#promotion}`;
   }
 }
 

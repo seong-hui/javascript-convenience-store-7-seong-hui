@@ -16,8 +16,8 @@ class Product {
     return this.#price;
   }
 
-  getInfo() {
-    return `- ${this.#name} ${this.#price}원`;
+  getDetails() {
+    return `${this.#name} ${this.#price}원`;
   }
 
   matchNameAndPrice(name, price) {
