@@ -1,4 +1,4 @@
-import formatPriceWithUnit from '../utils/formatPriceWithUnit.js';
+import { formatPriceWithUnit } from '../utils/formatUnit.js';
 
 class Product {
   #name;

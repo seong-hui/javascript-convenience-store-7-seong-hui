@@ -1,3 +1,5 @@
+import { formatWithUnit } from '../utils/formatUnit.js';
+
 class ProductBox {
   #product;
 
@@ -9,7 +11,7 @@ class ProductBox {
   }
 
   getDetails() {
-    return `${this.#product.getDetails()} ${this.#quantity}개`;
+    return `${this.#product.getDetails()} ${formatWithUnit(this.#quantity, '개')}`;
   }
 }
 
