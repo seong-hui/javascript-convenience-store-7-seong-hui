@@ -8,7 +8,7 @@ const readFileContent = async function readFileContent(absolutePath) {
     const fileContent = await fs.promises.readFile(filePath, 'utf8');
     return fileContent;
   } catch (error) {
-    OutputView.printError(`${absolutePath} 경로의 파일을 찾을 수 없습니다.`);
+    OutputView.printError(`${absolutePath} 경로의 파일 읽기를 실패 하였습니다.`);
     throw error;
   }
 };
