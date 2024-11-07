@@ -15,7 +15,10 @@ class App {
     const products = ProductController.createProducts(productRecords);
 
     const allProductBoxes = ProductController.createAllProductBoxes(productRecords, products);
-    ProductController.printProducts(allProductBoxes, OutputView);
+
+    const productDetails = ProductController.getProductDetailbyType(allProductBoxes);
+
+    OutputView.printProducts(productDetails);
   }
 }
 

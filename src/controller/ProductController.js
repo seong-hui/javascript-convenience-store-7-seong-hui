@@ -34,11 +34,6 @@ class ProductController {
       return '';
     });
   }
-
-  static printProducts(allProductBoxes, outputView) {
-    const productDetails = ProductController.getProductDetailbyType(allProductBoxes);
-    outputView.printProducts(productDetails);
-  }
 }
 
 export default ProductController;
