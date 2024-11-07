@@ -1,7 +1,7 @@
 import readFileContent from './utils/readFileContent.js';
 import Parser from './parser/Parser.js';
-import ProductController from './controller/ProductController.js';
 import PromotionController from './controller/PromotionController.js';
+import ProductController from './controller/ProductController.js';
 
 class App {
   async run() {
@@ -12,6 +12,8 @@ class App {
     const productFileContent = await readFileContent('public/products.md');
     const productRecords = Parser.parseFileContentToRecords(productFileContent);
     const products = ProductController.createProducts(productRecords);
+
+    const allProductBoxes = ProductController.createAllProductBoxes(productRecords, products);
   }
 }
 
