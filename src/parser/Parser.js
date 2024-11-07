@@ -1,16 +1,16 @@
 class Parser {
-  static parseFileContentToObject(fileContent) {
+  static parseFileContentToRecords(fileContent) {
     const rows = fileContent.trim().split('\n');
-    const objectKeys = rows[0].split(',');
+    const Keys = rows[0].split(',');
 
-    return rows.slice(1).map((row) => Parser.#makeDataObject(row, objectKeys));
+    return rows.slice(1).map((row) => Parser.#makeRowToRecord(row, Keys));
   }
 
-  static #makeDataObject(row, objectKeys) {
-    const objectValues = row.split(',');
+  static #makeRowToRecord(row, keys) {
+    const rowValues = row.split(',');
 
-    return objectKeys.reduce((dataObject, key, index) => {
-      return { ...dataObject, [key]: objectValues[index] };
+    return keys.reduce((record, key, index) => {
+      return { ...record, [key]: rowValues[index] };
     }, {});
   }
 }
