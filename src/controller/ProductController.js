@@ -9,17 +9,20 @@ class ProductController {
     return uniqueProducts.map(({ name, price }) => new Product(name, price));
   }
 
+  static createBox(productBox, promotion) {
+    if (promotion !== 'null') {
+      return new PromotionProductBox(productBox, promotion);
+    }
+    return productBox;
+  }
+
   static createAllProductBoxes(productRecords, products) {
     const allProductBoxes = [];
     productRecords.forEach(({ name, price, quantity, promotion }) => {
-      const product = products.find((product) => product.matchNameAndPrice(name, price));
-      const productBox = new ProductBox(product, quantity);
+      const targetProduct = products.find((product) => product.matchNameAndPrice(name, price));
+      const productBox = new ProductBox(targetProduct, quantity);
 
-      if (promotion !== 'null') {
-        allProductBoxes.push(new PromotionProductBox(productBox, promotion));
-      } else {
-        allProductBoxes.push(productBox);
-      }
+      allProductBoxes.push(ProductController.createBox(productBox, promotion));
     });
     return allProductBoxes;
   }
