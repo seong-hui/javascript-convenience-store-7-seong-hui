@@ -11,7 +11,12 @@ class ProductBox {
   }
 
   getDetails() {
-    return `${this.#product.getDetails()} ${formatWithUnit(this.#quantity, '개')}`;
+    return `${this.#product.getDetails()} ${this.#getQuantityText()}`;
+  }
+
+  #getQuantityText() {
+    if (this.#quantity <= 0) return '재고 없음';
+    return formatWithUnit(this.#quantity, '개');
   }
 }
 
