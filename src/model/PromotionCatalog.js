@@ -17,6 +17,10 @@ class PromotionCatalog {
   getAllPromotions() {
     return this.#promotions;
   }
+
+  findPromotionByName(name) {
+    return this.#promotions.find((promotion) => promotion.getName() === name);
+  }
 }
 
 export default PromotionCatalog;

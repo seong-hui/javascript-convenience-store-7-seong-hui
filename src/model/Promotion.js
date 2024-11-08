@@ -16,5 +16,9 @@ class Promotion {
     this.#startDate = new Date(promotionRecord.start_date);
     this.#endDate = new Date(promotionRecord.end_date);
   }
+
+  getName() {
+    return this.#name;
+  }
 }
 export default Promotion;

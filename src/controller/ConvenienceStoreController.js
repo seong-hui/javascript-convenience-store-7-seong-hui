@@ -21,7 +21,11 @@ class ConvenienceStoreController {
   static async initialSetupStore() {
     const promotionCatalog = await this.setUpPromotions();
     const { storedProducts, productRecords } = await this.setUpProducts();
-    const allProductBoxes = this.createAllProductBoxes(productRecords, storedProducts);
+    const allProductBoxes = this.createAllProductBoxes(
+      productRecords,
+      storedProducts,
+      promotionCatalog,
+    );
     return { storedProducts, allProductBoxes };
   }
 
@@ -51,20 +55,21 @@ class ConvenienceStoreController {
     return uniqueProducts.map(({ name, price }) => new Product(name, price));
   }
 
-  static createBox(productBox, promotion) {
+  static createBox(productBox, promotion, promotionCatalog) {
     if (promotion !== 'null') {
-      return new PromotionProductBox(productBox, promotion);
+      const targetPromotion = promotionCatalog.findPromotionByName(promotion);
+      return new PromotionProductBox(productBox, targetPromotion);
     }
     return productBox;
   }
 
-  static createAllProductBoxes(productRecords, products) {
+  static createAllProductBoxes(productRecords, products, promotionCatalog) {
     const allProductBoxes = [];
     productRecords.forEach(({ name, price, quantity, promotion }) => {
       const targetProduct = products.find((product) => product.matchNameAndPrice(name, price));
       const productBox = new ProductBox(targetProduct, quantity);
 
-      allProductBoxes.push(this.createBox(productBox, promotion));
+      allProductBoxes.push(this.createBox(productBox, promotion, promotionCatalog));
     });
     return allProductBoxes;
   }

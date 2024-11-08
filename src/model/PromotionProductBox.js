@@ -9,7 +9,7 @@ class PromotionProductBox {
   }
 
   getDetails() {
-    return `${this.#productBox.getDetails()} ${this.#promotion}`;
+    return `${this.#productBox.getDetails()} ${this.#promotion.getName()}`;
   }
 }
 
