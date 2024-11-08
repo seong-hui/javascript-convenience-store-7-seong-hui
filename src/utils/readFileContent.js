@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import OutputView from '../view/outputView.js';
+import OutputView from '../view/OutputView.js';
 
 const readFileContent = async function readFileContent(absolutePath) {
   try {
