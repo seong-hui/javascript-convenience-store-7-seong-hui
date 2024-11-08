@@ -25,6 +25,10 @@ class Product {
   matchNameAndPrice(name, price) {
     return this.#name === name && this.#price === parseInt(price, 10);
   }
+
+  matchName(name) {
+    return this.#name === name;
+  }
 }
 
 export default Product;
