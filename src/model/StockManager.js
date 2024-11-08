@@ -25,10 +25,17 @@ class StockManager {
   findValidBoxesForCartItems() {
     return this.#shoppingCart.getItems().map(({ name, quantity }) => {
       const { productBox, promotionProductBox } = this.#findProductBoxbyName(name);
-      const totalStock = productBox.getQuantity() + promotionProductBox.getQuantity();
+      const totalStock = StockManager.#calculateTotalStock(productBox, promotionProductBox);
       Validator.checkStockAvailable(totalStock, quantity);
       return { productBox, promotionProductBox };
     });
+  }
+
+  static #calculateTotalStock(productBox, promotionProductBox) {
+    let totalStock = 0;
+    if (productBox) totalStock += productBox.getQuantity();
+    if (promotionProductBox) totalStock += promotionProductBox.getQuantity();
+    return totalStock;
   }
 }
 
