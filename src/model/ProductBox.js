@@ -18,6 +18,10 @@ class ProductBox {
     if (this.#quantity <= 0) return '재고 없음';
     return formatWithUnit(this.#quantity, '개');
   }
+
+  getProductName() {
+    return this.#product.getName();
+  }
 }
 
 export default ProductBox;

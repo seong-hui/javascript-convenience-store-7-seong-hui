@@ -15,6 +15,14 @@ class CartItem {
   matchProduct(product) {
     return this.#product.getName() === product.getName();
   }
+
+  getProductName() {
+    return this.#product.getName();
+  }
+
+  getQuantity() {
+    return this.#quantity;
+  }
 }
 
 export default CartItem;

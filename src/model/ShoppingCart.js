@@ -46,6 +46,13 @@ class ShoppingCart {
   #findStoredProductByName(name) {
     return this.#storedProducts.find((storedProduct) => storedProduct.matchName(name));
   }
+
+  getItems() {
+    return this.#cartItems.map((cartItem) => ({
+      name: cartItem.getProductName(),
+      quantity: cartItem.getQuantity(),
+    }));
+  }
 }
 
 export default ShoppingCart;

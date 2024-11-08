@@ -11,6 +11,10 @@ class PromotionProductBox {
   getDetails() {
     return `${this.#productBox.getDetails()} ${this.#promotion.getName()}`;
   }
+
+  getProductName() {
+    return this.#productBox.getProductName();
+  }
 }
 
 export default PromotionProductBox;
