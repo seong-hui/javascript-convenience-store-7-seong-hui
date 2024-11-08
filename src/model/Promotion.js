@@ -20,5 +20,9 @@ class Promotion {
   getName() {
     return this.#name;
   }
+
+  isActive(currentDate) {
+    return this.#startDate <= currentDate && currentDate <= this.#endDate;
+  }
 }
 export default Promotion;
