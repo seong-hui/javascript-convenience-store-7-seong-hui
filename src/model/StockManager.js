@@ -3,12 +3,9 @@ import ProductBox from './ProductBox.js';
 import PromotionProductBox from './PromotionProductBox.js';
 
 class StockManager {
-  #shoppingCart;
-
   #allProductBoxes;
 
-  constructor(shoppingCart, allProductBoxes) {
-    this.#shoppingCart = shoppingCart;
+  constructor(allProductBoxes) {
     this.#allProductBoxes = allProductBoxes;
   }
 
@@ -22,8 +19,8 @@ class StockManager {
     return { productBox, promotionProductBox };
   }
 
-  findValidBoxesForCartItems() {
-    return this.#shoppingCart.getItems().map(({ name, quantity }) => {
+  findValidBoxesForCartItems(shoppingCart) {
+    return shoppingCart.getItems().map(({ name, quantity }) => {
       const { productBox, promotionProductBox } = this.#findProductBoxbyName(name);
       const totalStock = StockManager.#calculateTotalStock(productBox, promotionProductBox);
       Validator.checkStockAvailable(totalStock, quantity);

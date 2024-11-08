@@ -1,3 +1,4 @@
+import StockManager from '../model/StockManager.js';
 import Product from '../model/Product.js';
 import ProductBox from '../model/ProductBox.js';
 import PromotionCatalog from '../model/PromotionCatalog.js';
@@ -14,8 +15,7 @@ class ConvenienceStoreController {
   static async start() {
     const { storedProducts, allProductBoxes } = await this.initialSetupStore();
     OutputView.printProducts(this.getProductDetails(allProductBoxes));
-
-    this.manageShoppingCartInput(storedProducts);
+    await this.checkShoppingCartStock(allProductBoxes, storedProducts);
   }
 
   static async initialSetupStore() {
@@ -86,7 +86,7 @@ class ConvenienceStoreController {
     return promotionCatalog;
   }
 
-  static async manageShoppingCartInput(storedProducts) {
+  static async readShoppingCartInput(storedProducts) {
     while (true) {
       try {
         const inputItems = await catchParseReturn(InputView.readItem, Parser.parseItemToRecords);
@@ -95,6 +95,22 @@ class ConvenienceStoreController {
         OutputView.printError(error);
       }
     }
+  }
+
+  static async getCartItemProductBoxes(storedProducts, stockManager) {
+    while (true) {
+      try {
+        const shoppingCart = await this.readShoppingCartInput(storedProducts);
+        return stockManager.findValidBoxesForCartItems(shoppingCart);
+      } catch (error) {
+        OutputView.printError(error);
+      }
+    }
+  }
+
+  static async checkShoppingCartStock(allProductBoxes, storedProducts) {
+    const stockManager = new StockManager(allProductBoxes);
+    return this.getCartItemProductBoxes(storedProducts, stockManager);
   }
 }
 
