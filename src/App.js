@@ -3,6 +3,7 @@ import Parser from './parser/Parser.js';
 import PromotionController from './controller/PromotionController.js';
 import ProductController from './controller/ProductController.js';
 import OutputView from './view/outputView.js';
+import InputView from './view/inputView.js';
 
 class App {
   async run() {
@@ -19,6 +20,8 @@ class App {
     const productDetails = ProductController.getProductDetailbyType(allProductBoxes);
 
     OutputView.printProducts(productDetails);
+
+    InputView.readItem();
   }
 }
 
