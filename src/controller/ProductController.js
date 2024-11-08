@@ -27,11 +27,9 @@ class ProductController {
     return allProductBoxes;
   }
 
-  static getProductDetailbyType(allProductBoxes) {
+  static getProductDetail(allProductBoxes) {
     return allProductBoxes.map((productBox) => {
-      if (productBox instanceof PromotionProductBox) return productBox.getDetails();
-      if (productBox instanceof ProductBox) return productBox.getDetails();
-      return '';
+      return productBox.getDetails();
     });
   }
 }
