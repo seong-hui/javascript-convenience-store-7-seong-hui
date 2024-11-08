@@ -1,3 +1,4 @@
+import Validator from '../validator/Validator.js';
 import ProductBox from './ProductBox.js';
 import PromotionProductBox from './PromotionProductBox.js';
 
@@ -11,7 +12,7 @@ class StockManager {
     this.#allProductBoxes = allProductBoxes;
   }
 
-  #fintProductBoxbyName(productName) {
+  #findProductBoxbyName(productName) {
     const matchingBoxes = this.#allProductBoxes.filter((box) => {
       return box.getProductName() === productName;
     });
@@ -21,9 +22,11 @@ class StockManager {
     return { productBox, promotionProductBox };
   }
 
-  findBoxesForCartItems() {
-    return this.#shoppingCart.getItems().map(({ name, getQuantity }) => {
-      const { productBox, promotionProductBox } = this.#fintProductBoxbyName(name);
+  findValidBoxesForCartItems() {
+    return this.#shoppingCart.getItems().map(({ name, quantity }) => {
+      const { productBox, promotionProductBox } = this.#findProductBoxbyName(name);
+      const totalStock = productBox.getQuantity() + promotionProductBox.getQuantity();
+      Validator.checkStockAvailable(totalStock, quantity);
       return { productBox, promotionProductBox };
     });
   }

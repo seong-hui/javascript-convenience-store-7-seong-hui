@@ -22,6 +22,10 @@ class ProductBox {
   getProductName() {
     return this.#product.getName();
   }
+
+  getQuantity() {
+    return this.#quantity;
+  }
 }
 
 export default ProductBox;

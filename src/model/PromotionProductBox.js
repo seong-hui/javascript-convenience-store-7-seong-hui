@@ -15,6 +15,10 @@ class PromotionProductBox {
   getProductName() {
     return this.#productBox.getProductName();
   }
+
+  getQuantity() {
+    return this.#productBox.getQuantity();
+  }
 }
 
 export default PromotionProductBox;
