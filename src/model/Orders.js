@@ -35,7 +35,8 @@ class Orders {
     }, 0);
   }
 
-  calculateMembershipDiscountPrice() {
+  calculateMembershipDiscountPrice(isMembership) {
+    if (!isMembership) return 0;
     const totalPrice = this.calculateTotalPrice();
     const totalDiscountPrice = this.calculateTotalDiscountPrice();
     const discountedAmount = totalPrice - totalDiscountPrice;

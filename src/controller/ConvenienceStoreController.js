@@ -18,7 +18,7 @@ class ConvenienceStoreController {
   #allProductBoxes;
 
   async start() {
-    const { storedProducts, allProductBoxes } = await this.initialSetupStore();
+    const storedProducts = await this.initialSetupStore();
 
     while (true) {
       OutputView.printString('안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
@@ -26,15 +26,18 @@ class ConvenienceStoreController {
       await this.validateCartFromInput(storedProducts);
       const cashier = new Cashier(this.#allProductBoxes);
       const orders = await cashier.handleOrders(this.#shoppingCart);
-      ConvenienceStoreController.printReceipt(orders);
+      const isMambership = await ConvenienceStoreController.#readUserAnswer('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
+      ConvenienceStoreController.printReceipt(orders, isMambership);
 
-      const continueShopping = await ConvenienceStoreController.#readUserAnswer();
+      const continueShopping = await ConvenienceStoreController.#readUserAnswer(
+        '\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n\n',
+      );
       if (!continueShopping) break;
     }
   }
 
-  static async #readUserAnswer() {
-    const answer = await InputView.getValidatedAnswer('\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n\n');
+  static async #readUserAnswer(promptMessage) {
+    const answer = await InputView.getValidatedAnswer(promptMessage);
     if (answer === 'Y') return 1;
     return 0;
   }
@@ -48,7 +51,7 @@ class ConvenienceStoreController {
       promotionCatalog,
     );
     this.#allProductBoxes = allProductBoxes;
-    return { storedProducts, allProductBoxes };
+    return storedProducts;
   }
 
   static async setUpPromotions() {
@@ -125,20 +128,20 @@ class ConvenienceStoreController {
     return stockManager.findValidBoxesForCartItems(this.#shoppingCart);
   }
 
-  static printReceipt(orders) {
+  static printReceipt(orders, isMambership) {
     OutputView.printString('==============W 편의점================');
     OutputView.printString('상품명\t\t\t수량\t금액');
     OutputView.printOrderDetails(orders.getOrdersDetails());
     OutputView.printPromotionDetails(orders.getOrdersDetails());
     OutputView.printString('======================================');
-    ConvenienceStoreController.printAllPrices(orders);
+    ConvenienceStoreController.printAllPrices(orders, isMambership);
   }
 
-  static printAllPrices(orders) {
+  static printAllPrices(orders, isMambership) {
     const priceDetails = {
       totalPrice: orders.calculateTotalPrice(),
       totalDiscountPrice: orders.calculateTotalDiscountPrice(),
-      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(),
+      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(isMambership),
       totalDue: orders.calculateTotalDue(),
       totalQuantity: orders.calculateTotalQuantity(),
     };
