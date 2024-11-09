@@ -38,5 +38,9 @@ class Promotion {
     const productSets = Math.floor(totalStock / (this.#buy + this.#get));
     return quantity - productSets * (this.#buy + this.#get);
   }
+
+  calculatePromotionItemsQuantity(quantity) {
+    return Math.floor(quantity / (this.#buy + this.#get));
+  }
 }
 export default Promotion;

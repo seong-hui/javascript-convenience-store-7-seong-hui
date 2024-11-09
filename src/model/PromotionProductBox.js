@@ -31,6 +31,10 @@ class PromotionProductBox {
   calculateUnappliedQuantity(totalStock, quantity) {
     return this.#promotion.calculateUnappliedQuantity(totalStock, quantity);
   }
+
+  calculatePromotionItemsQuantity(quantity) {
+    return this.#promotion.calculatePromotionItemsQuantity(quantity);
+  }
 }
 
 export default PromotionProductBox;
