@@ -49,7 +49,7 @@ class ShoppingCart {
 
   getItems() {
     return this.#cartItems.map((cartItem) => ({
-      name: cartItem.getProductName(),
+      product: cartItem.getProduct(),
       quantity: cartItem.getQuantity(),
     }));
   }

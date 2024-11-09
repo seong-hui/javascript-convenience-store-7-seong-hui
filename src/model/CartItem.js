@@ -23,6 +23,10 @@ class CartItem {
   getQuantity() {
     return this.#quantity;
   }
+
+  getProduct() {
+    return this.#product;
+  }
 }
 
 export default CartItem;
