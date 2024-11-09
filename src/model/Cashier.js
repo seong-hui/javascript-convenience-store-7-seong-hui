@@ -54,7 +54,7 @@ class Cashier {
   }
 
   async checkPromotion(promotionProductBox, totalStock, nowDateTime, product, quantity) {
-    if (!promotionProductBox.isActivePromotion(nowDateTime)) return quantity;
+    if (!promotionProductBox.isActivePromotion(nowDateTime) || !promotionProductBox.getQuantity()) return quantity;
     const additionalQuantity = promotionProductBox.calculateAdditionalQuantity(quantity);
     if (Cashier.#isEnoughStockForPromotion(totalStock, quantity, additionalQuantity)) {
       await this.#handleEnoughStock(product, quantity, additionalQuantity, promotionProductBox);
