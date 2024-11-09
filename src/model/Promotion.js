@@ -26,11 +26,17 @@ class Promotion {
   }
 
   // 프로모션을 적용해서 증정으로 받는 수량 계산
-  calculateAdditionalPromotionQuantity(quantity) {
+  calculateAdditionalQuantity(quantity) {
     let additionalPromotionQuantity = 0;
     const remainQuantity = quantity % (this.#buy + this.#get);
     if (remainQuantity === this.#buy) additionalPromotionQuantity += this.#get;
     return additionalPromotionQuantity;
+  }
+
+  // 프로모션이 적용되지 않는 수량 계산
+  calculateUnappliedQuantity(totalStock, quantity) {
+    const productSets = Math.floor(totalStock / (this.#buy + this.#get));
+    return quantity - productSets * (this.#buy + this.#get);
   }
 }
 export default Promotion;

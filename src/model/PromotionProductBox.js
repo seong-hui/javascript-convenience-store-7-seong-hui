@@ -24,8 +24,12 @@ class PromotionProductBox {
     return this.#promotion.isActive(currentDate);
   }
 
-  calculateAdditionalPromotionQuantity(quantity) {
-    return this.#promotion.calculateAdditionalPromotionQuantity(quantity);
+  calculateAdditionalQuantity(quantity) {
+    return this.#promotion.calculateAdditionalQuantity(quantity);
+  }
+
+  calculateUnappliedQuantity(totalStock, quantity) {
+    return this.#promotion.calculateUnappliedQuantity(totalStock, quantity);
   }
 }
 
