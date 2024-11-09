@@ -15,38 +15,31 @@ import Cashier from '../model/Cashier.js';
 class ConvenienceStoreController {
   #shoppingCart;
 
+  #allProductBoxes;
+
   async start() {
-    const { storedProducts, allProductBoxes } = await ConvenienceStoreController.initialSetupStore();
-    OutputView.printProducts(ConvenienceStoreController.getProductDetails(allProductBoxes));
+    const { storedProducts, allProductBoxes } = await this.initialSetupStore();
 
-    await this.validateCartFromInput(storedProducts, allProductBoxes);
+    while (true) {
+      OutputView.printString('안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
+      OutputView.printProducts(this.#getProductDetails());
+      await this.validateCartFromInput(storedProducts);
+      const cashier = new Cashier(this.#allProductBoxes);
+      const orders = await cashier.handleOrders(this.#shoppingCart);
+      ConvenienceStoreController.printReceipt(orders);
 
-    const cashier = new Cashier(allProductBoxes);
-    const orders = await cashier.handleOrders(this.#shoppingCart);
-    ConvenienceStoreController.printReceipt(orders);
+      const continueShopping = await ConvenienceStoreController.#readUserAnswer();
+      if (!continueShopping) break;
+    }
   }
 
-  static printReceipt(orders) {
-    OutputView.printString('==============W 편의점================');
-    OutputView.printString('상품명\t\t\t수량\t금액');
-    OutputView.printOrderDetails(orders.getOrdersDetails());
-    OutputView.printPromotionDetails(orders.getOrdersDetails());
-    OutputView.printString('======================================');
-    ConvenienceStoreController.printAllPrices(orders);
+  static async #readUserAnswer() {
+    const answer = await InputView.getValidatedAnswer('\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n\n');
+    if (answer === 'Y') return 1;
+    return 0;
   }
 
-  static printAllPrices(orders) {
-    const priceDetails = {
-      totalPrice: orders.calculateTotalPrice(),
-      totalDiscountPrice: orders.calculateTotalDiscountPrice(),
-      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(),
-      totalDue: orders.calculateTotalDue(),
-      totalQuantity: orders.calculateTotalQuantity(),
-    };
-    OutputView.printAllPrices(priceDetails);
-  }
-
-  static async initialSetupStore() {
+  async initialSetupStore() {
     const promotionCatalog = await ConvenienceStoreController.setUpPromotions();
     const { storedProducts, productRecords } = await ConvenienceStoreController.setUpProducts();
     const allProductBoxes = ConvenienceStoreController.createAllProductBoxes(
@@ -54,6 +47,7 @@ class ConvenienceStoreController {
       storedProducts,
       promotionCatalog,
     );
+    this.#allProductBoxes = allProductBoxes;
     return { storedProducts, allProductBoxes };
   }
 
@@ -98,8 +92,8 @@ class ConvenienceStoreController {
     return allProductBoxes;
   }
 
-  static getProductDetails(allProductBoxes) {
-    return allProductBoxes.map((productBox) => {
+  #getProductDetails() {
+    return this.#allProductBoxes.map((productBox) => {
       return productBox.getDetails();
     });
   }
@@ -110,11 +104,11 @@ class ConvenienceStoreController {
     return promotionCatalog;
   }
 
-  async validateCartFromInput(storedProducts, allProductBoxes) {
+  async validateCartFromInput(storedProducts) {
     while (true) {
       try {
         await this.#setupShoppingCartFromInput(storedProducts);
-        return this.#validateCartWithStock(allProductBoxes);
+        return this.#validateCartWithStock(this.#allProductBoxes);
       } catch (error) {
         OutputView.printError(error);
       }
@@ -129,6 +123,26 @@ class ConvenienceStoreController {
   #validateCartWithStock(allProductBoxes) {
     const stockManager = new StockManager(allProductBoxes);
     return stockManager.findValidBoxesForCartItems(this.#shoppingCart);
+  }
+
+  static printReceipt(orders) {
+    OutputView.printString('==============W 편의점================');
+    OutputView.printString('상품명\t\t\t수량\t금액');
+    OutputView.printOrderDetails(orders.getOrdersDetails());
+    OutputView.printPromotionDetails(orders.getOrdersDetails());
+    OutputView.printString('======================================');
+    ConvenienceStoreController.printAllPrices(orders);
+  }
+
+  static printAllPrices(orders) {
+    const priceDetails = {
+      totalPrice: orders.calculateTotalPrice(),
+      totalDiscountPrice: orders.calculateTotalDiscountPrice(),
+      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(),
+      totalDue: orders.calculateTotalDue(),
+      totalQuantity: orders.calculateTotalQuantity(),
+    };
+    OutputView.printAllPrices(priceDetails);
   }
 }
 
