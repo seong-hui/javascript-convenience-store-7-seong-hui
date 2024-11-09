@@ -22,7 +22,28 @@ class ConvenienceStoreController {
     await this.validateCartFromInput(storedProducts, allProductBoxes);
 
     const cashier = new Cashier(allProductBoxes);
-    cashier.handleOrders(this.#shoppingCart);
+    const orders = await cashier.handleOrders(this.#shoppingCart);
+    ConvenienceStoreController.printReceipt(orders);
+  }
+
+  static printReceipt(orders) {
+    OutputView.printString('==============W 편의점================');
+    OutputView.printString('상품명\t\t\t수량\t금액');
+    OutputView.printOrderDetails(orders.getOrdersDetails());
+    OutputView.printPromotionDetails(orders.getOrdersDetails());
+    OutputView.printString('======================================');
+    ConvenienceStoreController.printAllPrices(orders);
+  }
+
+  static printAllPrices(orders) {
+    const priceDetails = {
+      totalPrice: orders.calculateTotalPrice(),
+      totalDiscountPrice: orders.calculateTotalDiscountPrice(),
+      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(),
+      totalDue: orders.calculateTotalDue(),
+      totalQuantity: orders.calculateTotalQuantity(),
+    };
+    OutputView.printAllPrices(priceDetails);
   }
 
   static async initialSetupStore() {
