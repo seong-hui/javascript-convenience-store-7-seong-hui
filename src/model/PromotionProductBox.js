@@ -19,6 +19,14 @@ class PromotionProductBox {
   getQuantity() {
     return this.#productBox.getQuantity();
   }
+
+  isActivePromotion(currentDate) {
+    return this.#promotion.isActive(currentDate);
+  }
+
+  calculateAdditionalPromotionQuantity(quantity) {
+    return this.#promotion.calculateAdditionalPromotionQuantity(quantity);
+  }
 }
 
 export default PromotionProductBox;

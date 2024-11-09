@@ -24,5 +24,13 @@ class Promotion {
   isActive(currentDate) {
     return this.#startDate <= currentDate && currentDate <= this.#endDate;
   }
+
+  // 프로모션을 적용해서 증정으로 받는 수량 계산
+  calculateAdditionalPromotionQuantity(quantity) {
+    let additionalPromotionQuantity = 0;
+    const remainQuantity = quantity % (this.#buy + this.#get);
+    if (remainQuantity === this.#buy) additionalPromotionQuantity += this.#get;
+    return additionalPromotionQuantity;
+  }
 }
 export default Promotion;
