@@ -7,6 +7,20 @@ const InputView = {
     );
     return input;
   },
+
+  async readAnswer(question) {
+    const input = await MissionUtils.Console.readLineAsync(question);
+    return input;
+  },
+
+  async getValidatedAnswer(promptMessage) {
+    let answer = '';
+    while (!['Y', 'N'].includes(answer)) {
+      answer = await InputView.readAnswer(promptMessage);
+      answer = answer.trim();
+    }
+    return answer;
+  },
 };
 
 export default InputView;
