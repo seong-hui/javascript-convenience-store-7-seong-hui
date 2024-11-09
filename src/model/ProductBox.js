@@ -26,6 +26,10 @@ class ProductBox {
   getQuantity() {
     return this.#quantity;
   }
+
+  reduceQuantity(amount) {
+    this.#quantity -= amount;
+  }
 }
 
 export default ProductBox;

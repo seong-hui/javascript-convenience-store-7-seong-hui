@@ -35,6 +35,10 @@ class PromotionProductBox {
   calculatePromotionItemsQuantity(quantity) {
     return this.#promotion.calculatePromotionItemsQuantity(quantity);
   }
+
+  reduceQuantity(amount) {
+    this.#productBox.reduceQuantity(amount);
+  }
 }
 
 export default PromotionProductBox;

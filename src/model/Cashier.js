@@ -37,7 +37,7 @@ class Cashier {
         nowDateTime,
         items[i],
       );
-      if (remainQuantity > 0) Cashier.#addRegularOrderItem(items[i], remainQuantity);
+      if (remainQuantity > 0) Cashier.#addRegularOrderItem(items[i], remainQuantity, productBox);
     }
   }
 
@@ -100,11 +100,13 @@ class Cashier {
     console.log(
       `프로모션 재고 구매 : 주문 개수 - ${orderItemQuantity}, 증정 개수 - ${promotionItemsQuantity}`,
     );
+    promotionProductBox.reduceQuantity(quantity);
   }
 
-  static #addRegularOrderItem(item, orderItemQuantity) {
+  static #addRegularOrderItem(item, orderItemQuantity, productBox) {
     const orderItem = new OrderItem(item, orderItemQuantity);
     console.log(`일반 재고 구매 :  주문개수 - ${orderItemQuantity}`);
+    productBox.reduceQuantity(orderItemQuantity);
   }
 }
 export default Cashier;
