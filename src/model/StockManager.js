@@ -20,11 +20,10 @@ class StockManager {
   }
 
   findValidBoxesForCartItems(shoppingCart) {
-    return shoppingCart.getItems().map(({ product, quantity }) => {
+    shoppingCart.getItems().forEach(({ product, quantity }) => {
       const { productBox, promotionProductBox } = this.#findProductBoxbyName(product.getName());
       const totalStock = StockManager.#calculateTotalStock(productBox, promotionProductBox);
       Validator.checkStockAvailable(totalStock, quantity);
-      return { productBox, promotionProductBox };
     });
   }
 

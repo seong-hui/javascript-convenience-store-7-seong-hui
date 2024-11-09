@@ -10,18 +10,25 @@ import createUniqueProduct from '../utils/createUniqueProduct.js';
 import readFileContent from '../utils/readFileContent.js';
 import InputView from '../view/InputView.js';
 import OutputView from '../view/OutputView.js';
+import Cashier from '../model/Cashier.js';
 
 class ConvenienceStoreController {
-  static async start() {
-    const { storedProducts, allProductBoxes } = await this.initialSetupStore();
-    OutputView.printProducts(this.getProductDetails(allProductBoxes));
-    await this.checkShoppingCartStock(allProductBoxes, storedProducts);
+  #shoppingCart;
+
+  async start() {
+    const { storedProducts, allProductBoxes } = await ConvenienceStoreController.initialSetupStore();
+    OutputView.printProducts(ConvenienceStoreController.getProductDetails(allProductBoxes));
+
+    await this.validateCartFromInput(storedProducts, allProductBoxes);
+
+    const cashier = new Cashier(allProductBoxes);
+    cashier.handleOrders(this.#shoppingCart);
   }
 
   static async initialSetupStore() {
-    const promotionCatalog = await this.setUpPromotions();
-    const { storedProducts, productRecords } = await this.setUpProducts();
-    const allProductBoxes = this.createAllProductBoxes(
+    const promotionCatalog = await ConvenienceStoreController.setUpPromotions();
+    const { storedProducts, productRecords } = await ConvenienceStoreController.setUpProducts();
+    const allProductBoxes = ConvenienceStoreController.createAllProductBoxes(
       productRecords,
       storedProducts,
       promotionCatalog,
@@ -32,22 +39,18 @@ class ConvenienceStoreController {
   static async setUpPromotions() {
     const promotionFileContent = await readFileContent('public/promotions.md');
     const promotionRecords = Parser.parseFileContentToRecords(promotionFileContent);
-    return this.createPromotionCatalog(promotionRecords);
+    return ConvenienceStoreController.createPromotionCatalog(promotionRecords);
   }
 
   static async setUpProducts() {
     const productFileContent = await readFileContent('public/products.md');
     const productRecords = Parser.parseFileContentToRecords(productFileContent);
-    const storedProducts = this.createProducts(productRecords);
+    const storedProducts = ConvenienceStoreController.createProducts(productRecords);
     return { storedProducts, productRecords };
   }
 
   static parseInputItems(inputItems) {
     return Parser.parseItemToRecords(inputItems);
-  }
-
-  static createShoppingCart(products, items) {
-    return new ShoppingCart(products, items);
   }
 
   static createProducts(productRecords) {
@@ -69,7 +72,7 @@ class ConvenienceStoreController {
       const targetProduct = products.find((product) => product.matchNameAndPrice(name, price));
       const productBox = new ProductBox(targetProduct, quantity);
 
-      allProductBoxes.push(this.createBox(productBox, promotion, promotionCatalog));
+      allProductBoxes.push(ConvenienceStoreController.createBox(productBox, promotion, promotionCatalog));
     });
     return allProductBoxes;
   }
@@ -86,31 +89,25 @@ class ConvenienceStoreController {
     return promotionCatalog;
   }
 
-  static async readShoppingCartInput(storedProducts) {
+  async validateCartFromInput(storedProducts, allProductBoxes) {
     while (true) {
       try {
-        const inputItems = await catchParseReturn(InputView.readItem, Parser.parseItemToRecords);
-        return new ShoppingCart(storedProducts, inputItems);
+        await this.#setupShoppingCartFromInput(storedProducts);
+        return this.#validateCartWithStock(allProductBoxes);
       } catch (error) {
         OutputView.printError(error);
       }
     }
   }
 
-  static async getCartItemProductBoxes(storedProducts, stockManager) {
-    while (true) {
-      try {
-        const shoppingCart = await this.readShoppingCartInput(storedProducts);
-        return stockManager.findValidBoxesForCartItems(shoppingCart);
-      } catch (error) {
-        OutputView.printError(error);
-      }
-    }
+  async #setupShoppingCartFromInput(storedProducts) {
+    const inputItems = await catchParseReturn(InputView.readItem, Parser.parseItemToRecords);
+    this.#shoppingCart = new ShoppingCart(storedProducts, inputItems);
   }
 
-  static async checkShoppingCartStock(allProductBoxes, storedProducts) {
+  #validateCartWithStock(allProductBoxes) {
     const stockManager = new StockManager(allProductBoxes);
-    return this.getCartItemProductBoxes(storedProducts, stockManager);
+    return stockManager.findValidBoxesForCartItems(this.#shoppingCart);
   }
 }
 
