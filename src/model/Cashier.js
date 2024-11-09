@@ -20,15 +20,16 @@ class Cashier {
     for (let i = 0; i < items.length; i += 1) {
       await this.#processCartItemToOrder(items[i]);
     }
+    return this.#orders;
   }
 
   async #processCartItemToOrder(item) {
     const { productBox, promotionProductBox } = this.#findProductBoxbyName(item.product.getName());
-    const totalPromotionStock = Cashier.#calculateTotalPromotionStock(promotionProductBox);
     if (!promotionProductBox) {
       this.#addRegularOrderItem(item.product, item.quantity, productBox);
       return;
     }
+    const totalPromotionStock = Cashier.#calculateTotalPromotionStock(promotionProductBox);
     await this.#checkPromotionAndOrder(item, productBox, promotionProductBox, totalPromotionStock);
   }
 
@@ -56,8 +57,8 @@ class Cashier {
     if (!promotionProductBox.isActivePromotion(nowDateTime)) return quantity;
     const additionalQuantity = promotionProductBox.calculateAdditionalQuantity(quantity);
     if (Cashier.#isEnoughStockForPromotion(totalStock, quantity, additionalQuantity)) {
-      const remainQuantity = await this.#handleEnoughStock(product, quantity, additionalQuantity, promotionProductBox);
-      return remainQuantity;
+      await this.#handleEnoughStock(product, quantity, additionalQuantity, promotionProductBox);
+      return 0;
     }
     const remainQuantity = await this.#handleNotEnoughStock(product, quantity, totalStock, promotionProductBox);
     return remainQuantity;
@@ -67,9 +68,9 @@ class Cashier {
     if (additionalQuantity > 0) {
       const agreeValue = await Cashier.#readAdditionalAnswer(additionalQuantity, product.getName());
       this.#addPromotionalOrderItem(product, quantity + agreeValue, promotionBox);
-      return 0;
+      return;
     }
-    return quantity;
+    this.#addPromotionalOrderItem(product, quantity, promotionBox);
   }
 
   async #handleNotEnoughStock(product, quantity, totalStock, promotionBox) {
@@ -97,13 +98,13 @@ class Cashier {
     return totalStock;
   }
 
-  static #isEnoughStockForPromotion(totalStock, quantity, additionalQuantity) {
-    return totalStock >= quantity + additionalQuantity;
+  static #isEnoughStockForPromotion(totalPromotionStock, quantity, additionalQuantity) {
+    return totalPromotionStock >= quantity + additionalQuantity;
   }
 
   static async #readAdditionalAnswer(additionalQuantity, name) {
     const answer = await InputView.getValidatedAnswer(
-      `현재 ${name}은(는) ${additionalQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`,
+      `\n현재 ${name}은(는) ${additionalQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`,
     );
     if (answer === 'Y') return 1;
     return 0;
@@ -111,7 +112,7 @@ class Cashier {
 
   static async #readUserAnswer(unappliedQuantity, name) {
     const answer = await InputView.getValidatedAnswer(
-      `현재 ${name} ${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`,
+      `\n현재 ${name} ${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`,
     );
     if (answer === 'Y') return 1;
     return 0;
