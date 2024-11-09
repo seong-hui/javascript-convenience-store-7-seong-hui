@@ -1,6 +1,7 @@
 import ProductBox from './ProductBox.js';
 import PromotionProductBox from './PromotionProductBox.js';
 import { DateTimes } from '@woowacourse/mission-utils';
+import InputView from '../view/InputView.js';
 
 class Cashier {
   #shoppingCart;
@@ -22,23 +23,25 @@ class Cashier {
     return { productBox, promotionProductBox };
   }
 
-  findValidBoxesForCartItems(shoppingCart) {
-    return shoppingCart.getItems().map(({ name, quantity }) => {
+  async findValidBoxesForCartItems(shoppingCart) {
+    const items = shoppingCart.getItems();
+    for (let i = 0; i < items.length; i += 1) {
+      const { name, quantity } = items[i];
       const { productBox, promotionProductBox } = this.#findProductBoxbyName(name);
       const totalStock = Cashier.#calculateTotalStock(promotionProductBox);
       const nowDateTime = DateTimes.now();
-      this.checkPromotion(promotionProductBox, quantity, totalStock, nowDateTime);
-    });
+      await this.checkPromotion(promotionProductBox, quantity, totalStock, nowDateTime, name);
+    }
   }
 
-  checkPromotion(promotionProductBox, quantity, totalStock, nowDateTime) {
+  async checkPromotion(promotionProductBox, quantity, totalStock, nowDateTime, name) {
     if (!promotionProductBox.isActivePromotion(nowDateTime)) return;
     const additionalQuantity = promotionProductBox.calculateAdditionalQuantity(quantity);
     if (Cashier.#isEnoughStockForPromotion(totalStock, quantity, additionalQuantity)) {
-      Cashier.#handleAdditionalPromotion(additionalQuantity);
+      await Cashier.#handleAdditionalPromotion(additionalQuantity, name);
       return;
     }
-    Cashier.#handleUnappliedPromotion(promotionProductBox, totalStock, quantity);
+    await Cashier.#handleUnappliedPromotion(promotionProductBox, totalStock, quantity, name);
   }
 
   static #calculateTotalStock(promotionProductBox) {
@@ -51,14 +54,18 @@ class Cashier {
     return totalStock >= quantity + additionalQuantity;
   }
 
-  static #handleAdditionalPromotion(additionalQuantity) {
+  static async #handleAdditionalPromotion(additionalQuantity, name) {
     if (additionalQuantity > 0)
-      console.log(`${additionalQuantity}를 무료로 받을 수 있습니다. 추가하시겠습니까?`);
+      await InputView.readAnswer(
+        `현재 ${name}은(는) ${additionalQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`,
+      );
   }
 
-  static #handleUnappliedPromotion(promotionProductBox, totalStock, quantity) {
+  static async #handleUnappliedPromotion(promotionProductBox, totalStock, quantity, name) {
     const unappliedQuantity = promotionProductBox.calculateUnappliedQuantity(totalStock, quantity);
-    console.log(`${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다.`);
+    await InputView.readAnswer(
+      `현재 ${name} ${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`,
+    );
   }
 }
 export default Cashier;
