@@ -51,5 +51,11 @@ class Orders {
 
     return totalPrice - totalDiscountPrice - membershipDiscountPrice;
   }
+
+  calculateTotalQuantity() {
+    return this.#orderItems.reduce((sum, orderItem) => {
+      return sum + orderItem.getOrderItemQuantity();
+    }, 0);
+  }
 }
 export default Orders;
