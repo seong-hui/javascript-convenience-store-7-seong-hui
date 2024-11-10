@@ -31,19 +31,13 @@ class ConvenienceStoreController {
       await this.validateCartFromInput(storedProducts);
       const cashier = new Cashier(this.#boxesInventory);
       const orders = await cashier.handleOrders(this.#shoppingCart);
-      const isMambership = await ConvenienceStoreController.#readUserAnswer('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
+      const isMambership = await InputView.readUserResponse('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
       ConvenienceStoreController.printReceipt(orders, isMambership);
-      const continueShopping = await ConvenienceStoreController.#readUserAnswer(
+      const continueShopping = await InputView.readUserResponse(
         '\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n\n',
       );
       if (!continueShopping) break;
     }
-  }
-
-  static async #readUserAnswer(promptMessage) {
-    const answer = await InputView.getValidatedAnswer(promptMessage);
-    if (answer === 'Y') return 1;
-    return 0;
   }
 
   async initialSetupStore() {

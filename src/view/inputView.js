@@ -21,6 +21,12 @@ const InputView = {
     }
     return answer;
   },
+
+  async readUserResponse(message) {
+    const answer = await InputView.getValidatedAnswer(message);
+    if (answer === 'Y') return true;
+    return false;
+  },
 };
 
 export default InputView;
