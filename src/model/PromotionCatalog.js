@@ -1,4 +1,4 @@
-import Promotion from './promotion.js';
+import Promotion from './Promotion.js';
 
 class PromotionCatalog {
   #promotions;
