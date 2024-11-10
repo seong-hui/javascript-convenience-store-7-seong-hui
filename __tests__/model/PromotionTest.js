@@ -92,7 +92,7 @@ describe('Promotion클래스 메서드 테스트', () => {
     [2, 1],
     [4, 0],
     [9, 0],
-  ])('calculateAdditionalQuantity 메서드 - %d개 구매시 %d개 증정', (quantity, expected) => {
+  ])('calculateAdditionalQuantity 메서드 - 프로모션을 적용해서 증정으로 받는 수량 계산', (quantity, expected) => {
     expect(promotion.calculateAdditionalQuantity(quantity)).toBe(expected);
   });
 
@@ -100,19 +100,16 @@ describe('Promotion클래스 메서드 테스트', () => {
     [5, 6, 3],
     [8, 10, 4],
     [2, 15, 15],
-  ])(
-    'calculateUnappliedQuantity 메서드 - 총 %d개의 재고가 있을 때 %d개 구매시 %d개 프로모션 미적용',
-    (totalStock, quantity, expected) => {
-      expect(promotion.calculateUnappliedQuantity(totalStock, quantity)).toBe(expected);
-    },
-  );
+  ])('calculateUnappliedQuantity 메서드 - 프로모션이 적용되지 않는 수량 계산', (totalStock, quantity, expected) => {
+    expect(promotion.calculateUnappliedQuantity(totalStock, quantity)).toBe(expected);
+  });
 
   test.each([
     [5, 1],
     [2, 0],
     [10, 3],
     [15, 5],
-  ])('calculatePromotionItemsQuantity 메서드 - %d개 구매시 %d개 프로모션 적용', (quantity, expected) => {
+  ])('calculatePromotionItemsQuantity 메서드 - 주어진 수량에서 프로모션이 적용된 수량 계산', (quantity, expected) => {
     expect(promotion.calculatePromotionItemsQuantity(quantity)).toBe(expected);
   });
 });
