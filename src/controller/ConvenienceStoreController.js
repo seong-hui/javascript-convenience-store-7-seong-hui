@@ -106,18 +106,29 @@ class ConvenienceStoreController {
 
   async #manageOrders(shoppingCart) {
     const cashier = new Cashier(this.#boxesInventory);
-    const orders = await cashier.handleOrders(shoppingCart, InputView.readUserConfirmation);
+    const orders = await cashier.handleOrders(shoppingCart, ConvenienceStoreController.askUserConfirmation);
     return orders;
   }
 
   static async #askMembershipDiscount() {
-    const isMambership = await InputView.readUserConfirmation(STORE_MESSAGES.ASK_MEMBERSHIP_DISCOUNT);
+    const isMambership = await ConvenienceStoreController.askUserConfirmation(STORE_MESSAGES.ASK_MEMBERSHIP_DISCOUNT);
     return isMambership;
   }
 
   static async askContinueShopping() {
-    const isContinue = await InputView.askToContinueShopping();
+    const isContinue = await ConvenienceStoreController.askUserConfirmation(STORE_MESSAGES.ASK_CONTINUE_SHOPPING);
     return isContinue;
+  }
+
+  static async askUserConfirmation(promptMessage) {
+    while (true) {
+      try {
+        const answer = await InputView.getValidatedAnswer(promptMessage);
+        return answer;
+      } catch (error) {
+        OutputView.printError(error);
+      }
+    }
   }
 }
 export default ConvenienceStoreController;

@@ -1,4 +1,5 @@
 import { ERROR_MESSAGES } from '../constants/errorMessages.js';
+import { VALID_ANSWERS } from '../constants/constants.js';
 
 const Validator = {
   isValidItemFormat(item) {
@@ -17,6 +18,11 @@ const Validator = {
 
   checkEnoughStockForPromotion(totalPromotionStock, quantity, additionalQuantity) {
     return totalPromotionStock >= quantity + additionalQuantity;
+  },
+
+  isValidAnswer(answer) {
+    const validAnswers = Object.values(VALID_ANSWERS);
+    return validAnswers.includes(answer.trim());
   },
 };
 
