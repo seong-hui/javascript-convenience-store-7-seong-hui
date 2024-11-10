@@ -121,14 +121,14 @@ class Cashier {
   #addPromotionalOrderItem(product, quantity, promotionProductBox) {
     const promotionItemsQuantity = promotionProductBox.calculatePromotionItemsQuantity(quantity);
     const orderItemQuantity = quantity - promotionItemsQuantity;
-    const orderItem = new OrderItem(product, orderItemQuantity, promotionItemsQuantity);
+    const orderItem = new OrderItem(product, true, orderItemQuantity, promotionItemsQuantity);
     this.#orders.addOrderItem(orderItem);
     promotionProductBox.reduceQuantity(quantity);
     // console.log(`프로모션 재고 구매 : 주문 개수 - ${orderItemQuantity}, 증정 개수 - ${promotionItemsQuantity}`);
   }
 
   #addRegularOrderItem(product, orderItemQuantity, productBox) {
-    const orderItem = new OrderItem(product, orderItemQuantity);
+    const orderItem = new OrderItem(product, false, orderItemQuantity);
     this.#orders.addOrderItem(orderItem);
     productBox.reduceQuantity(orderItemQuantity);
     // console.log(`일반 재고 구매 :  주문개수 - ${orderItemQuantity}`);

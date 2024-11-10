@@ -37,10 +37,9 @@ class Orders {
 
   calculateMembershipDiscountPrice(isMembership) {
     if (!isMembership) return 0;
-    const totalPrice = this.calculateTotalPrice();
-    const totalDiscountPrice = this.calculateTotalDiscountPrice();
-    const discountedAmount = totalPrice - totalDiscountPrice;
-    const membershipDiscount = Math.round(discountedAmount * 0.3);
+    const nonPrmotionPrice = this.calcualteTotalNonPromotionPrice();
+    const membershipDiscount = Math.round(nonPrmotionPrice * 0.3);
+
     if (membershipDiscount >= 8000) return 8000;
     return membershipDiscount;
   }
@@ -56,6 +55,12 @@ class Orders {
   calculateTotalQuantity() {
     return this.#orderItems.reduce((sum, orderItem) => {
       return sum + orderItem.calcualteTotalQuantity();
+    }, 0);
+  }
+
+  calcualteTotalNonPromotionPrice() {
+    return this.#orderItems.reduce((sum, orderItem) => {
+      return sum + orderItem.calculateNonPrmotionPrice();
     }, 0);
   }
 }

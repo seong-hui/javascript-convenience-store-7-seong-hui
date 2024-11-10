@@ -1,12 +1,15 @@
 class OrderItem {
   #product;
 
+  #isPromotion;
+
   #orderItemQuantity;
 
   #promotionItemsQuantity;
 
-  constructor(product, orderItemQuantity, promotionItemsQuantity = 0) {
+  constructor(product, isPromotion, orderItemQuantity, promotionItemsQuantity = 0) {
     this.#product = product;
+    this.#isPromotion = isPromotion;
     this.#orderItemQuantity = orderItemQuantity;
     this.#promotionItemsQuantity = promotionItemsQuantity;
   }
@@ -43,6 +46,11 @@ class OrderItem {
 
   calcualteTotalQuantity() {
     return this.#orderItemQuantity + this.#promotionItemsQuantity;
+  }
+
+  calculateNonPrmotionPrice() {
+    if (!this.#isPromotion) return this.#orderItemQuantity * this.#product.getPrice();
+    return 0;
   }
 }
 
