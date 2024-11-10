@@ -1,14 +1,18 @@
 import { MissionUtils } from '@woowacourse/mission-utils';
 import { formatProductLine, formatPromotionLine } from '../utils/formatLine.js';
+import { RECEIPT_TEMPLATE, RECEIPT_LABELS } from '../constants/receipt.js';
+import { ERROR_LABEL } from '../constants/errorMessages.js';
+import STORE_MESSAGES from '../constants/storeMessages.js';
+import { PRODUCT_DIVIDER } from '../constants/constants.js';
 
 const OutputView = {
   printError(error) {
-    MissionUtils.Console.print(`[ERROR] ${error.message}\n`);
+    MissionUtils.Console.print(`${ERROR_LABEL} ${error.message}\n`);
   },
 
   printProducts(productDetails) {
     productDetails.forEach((productDetail) => {
-      MissionUtils.Console.print(`- ${productDetail}`);
+      MissionUtils.Console.print(`${PRODUCT_DIVIDER} ${productDetail}`);
     });
   },
 
@@ -19,7 +23,7 @@ const OutputView = {
   },
 
   printPromotionDetails(orderDetails) {
-    MissionUtils.Console.print('============증\t\t정============');
+    MissionUtils.Console.print(RECEIPT_TEMPLATE.PROMOTION_DIVIDER);
     orderDetails
       .filter(({ promotionQuantity }) => promotionQuantity > 0)
       .forEach(({ product, promotionQuantity }) => {
@@ -28,10 +32,12 @@ const OutputView = {
   },
 
   printAllPrices({ totalPrice, totalDiscountPrice, membershipDiscountPrice, totalDue, totalQuantity }) {
-    MissionUtils.Console.print(`총구매액\t\t${totalQuantity}\t ${totalPrice.toLocaleString()}`);
-    MissionUtils.Console.print(`행사할인\t\t\t-${totalDiscountPrice.toLocaleString()}`);
-    MissionUtils.Console.print(`멤버십할인\t\t\t-${membershipDiscountPrice.toLocaleString()}`);
-    MissionUtils.Console.print(`내실돈\t\t\t\t ${totalDue.toLocaleString()}`);
+    MissionUtils.Console.print(`${RECEIPT_LABELS.TOTAL_PRICE}\t\t${totalQuantity}\t${totalPrice.toLocaleString()}`);
+    MissionUtils.Console.print(`${RECEIPT_LABELS.TOTAL_DISCOUNT}\t\t\t-${totalDiscountPrice.toLocaleString()}`);
+    MissionUtils.Console.print(
+      `${RECEIPT_LABELS.MEMBERSHIP_DISCOUNT}\t\t\t-${membershipDiscountPrice.toLocaleString()}`,
+    );
+    MissionUtils.Console.print(`${RECEIPT_LABELS.TOTAL_DUE}\t\t\t\t ${totalDue.toLocaleString()}`);
   },
 
   printString(string) {
@@ -39,11 +45,11 @@ const OutputView = {
   },
 
   printReceipt(orders, isMambership) {
-    this.printString('\n==============W 편의점================');
-    this.printString('상품명\t\t\t수량\t금액');
+    this.printString(RECEIPT_TEMPLATE.RECEIPT_HEADER);
+    this.printString(RECEIPT_TEMPLATE.ORDER_SUMMARY_HEADER);
     this.printOrderDetails(orders.getOrdersDetails());
     this.printPromotionDetails(orders.getOrdersDetails());
-    this.printString('======================================');
+    this.printString(RECEIPT_TEMPLATE.RECEIPT_DIVIDER);
     this.printPriceSummary(orders, isMambership);
   },
 
@@ -59,7 +65,7 @@ const OutputView = {
   },
 
   printWellcomWithProducts(productDetails) {
-    OutputView.printString('\n안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
+    OutputView.printString(STORE_MESSAGES.WELCOME_NOTIFICATION);
     OutputView.printProducts(productDetails);
   },
 };

@@ -3,6 +3,7 @@ import Orders from './Orders.js';
 import StockManager from './StockManager.js';
 import Validator from '../validator/Validator.js';
 import generateNowDateTime from '../utils/generateNowDateTime.js';
+import STORE_MESSAGES from '../constants/storeMessages.js';
 
 class Cashier {
   #boxesInventory;
@@ -61,7 +62,7 @@ class Cashier {
 
   async #handleEnoughStock(product, quantity, additionalQuantity, readUserConfirmation) {
     if (additionalQuantity > 0) {
-      const message = `\n현재 ${product.getName()}은(는) ${additionalQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`;
+      const message = STORE_MESSAGES.ASK_ADDITIONAL_QUANTITY(product.getName(), additionalQuantity);
       const agreeValue = await readUserConfirmation(message);
       this.#addPromotionalOrderItem(product, quantity + agreeValue);
       return;
@@ -78,7 +79,7 @@ class Cashier {
   }
 
   async #processUnappliedLogic(unappliedQuantity, product, totalStock, quantity, readUserConfirmation) {
-    const message = `\n현재 ${product.getName()} ${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`;
+    const message = STORE_MESSAGES.ASK_UNAPPLIED_QUANTITY(product.getName(), unappliedQuantity);
     const agreeValue = await readUserConfirmation(message);
     if (agreeValue) {
       this.#addPromotionalOrderItem(product, totalStock);

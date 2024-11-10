@@ -1,4 +1,5 @@
 import Validator from '../validator/Validator.js';
+import { ERROR_MESSAGES } from '../constants/errorMessages.js';
 
 const Parser = {
   parseFileContentToRecords(fileContent) {
@@ -29,7 +30,7 @@ const Parser = {
       if (Validator.isValidItemFormat(item)) {
         return Parser.extractNameAndQuantity(item);
       }
-      throw new Error('올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.');
+      throw new Error(ERROR_MESSAGES.INVALID_INPUT_FORMAT);
     });
   },
 };

@@ -12,6 +12,8 @@ import InputView from '../view/InputView.js';
 import OutputView from '../view/OutputView.js';
 import Cashier from '../model/Cashier.js';
 import BoxesInventory from '../model/BoxesInventory.js';
+import STORE_MESSAGES from '../constants/storeMessages.js';
+import ABSOLUTE_FILE_PATH from '../constants/absolutefilePath.js';
 
 class ConvenienceStoreController {
   #shoppingCart;
@@ -41,20 +43,16 @@ class ConvenienceStoreController {
   }
 
   static async setUpPromotions() {
-    const promotionFileContent = await readFileContent('public/promotions.md');
+    const promotionFileContent = await readFileContent(ABSOLUTE_FILE_PATH.PROMOTION);
     const promotionRecords = Parser.parseFileContentToRecords(promotionFileContent);
     return ConvenienceStoreController.createPromotionCatalog(promotionRecords);
   }
 
   static async setUpProducts() {
-    const productFileContent = await readFileContent('public/products.md');
+    const productFileContent = await readFileContent(ABSOLUTE_FILE_PATH.PRODUCT);
     const productRecords = Parser.parseFileContentToRecords(productFileContent);
     const storedProducts = ConvenienceStoreController.createProducts(productRecords);
     return { storedProducts, productRecords };
-  }
-
-  static parseInputItems(inputItems) {
-    return Parser.parseItemToRecords(inputItems);
   }
 
   static createProducts(productRecords) {
@@ -115,7 +113,7 @@ class ConvenienceStoreController {
   }
 
   static async #printOrderReceiptWithMembership(orders) {
-    const isMembership = await InputView.readUserConfirmation('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
+    const isMembership = await InputView.readUserConfirmation(STORE_MESSAGES.ASK_MEMBERSHIP_DISCOUNT);
     OutputView.printReceipt(orders, isMembership);
   }
 }

@@ -1,5 +1,6 @@
 import Validator from '../validator/Validator.js';
 import CartItem from './CartItem.js';
+import { ERROR_MESSAGES } from '../constants/errorMessages.js';
 
 class ShoppingCart {
   #cartItems;
@@ -40,7 +41,7 @@ class ShoppingCart {
 
   #checkExistingProduct(name) {
     if (!this.#storedProducts.some((storedProduct) => storedProduct.matchName(name)))
-      throw new Error('존재하지 않는 상품입니다. 다시 입력해 주세요.');
+      throw new Error(ERROR_MESSAGES.NON_EXIST_PRODUCT);
   }
 
   #findStoredProductByName(name) {
