@@ -11,24 +11,31 @@ import readFileContent from '../utils/readFileContent.js';
 import InputView from '../view/InputView.js';
 import OutputView from '../view/OutputView.js';
 import Cashier from '../model/Cashier.js';
+import BoxesInventory from '../model/BoxesInventory.js';
 
 class ConvenienceStoreController {
   #shoppingCart;
 
-  #allProductBoxes;
+  #allProductBoxes = [];
+
+  #boxesInventory;
+
+  constructor() {
+    this.#boxesInventory = new BoxesInventory();
+  }
 
   async start() {
     const storedProducts = await this.initialSetupStore();
 
     while (true) {
       OutputView.printString('안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
-      OutputView.printProducts(this.#getProductDetails());
+      // OutputView.printProducts(this.#getProductDetails());
+      OutputView.printProducts(this.#boxesInventory.getDetails());
       await this.validateCartFromInput(storedProducts);
       const cashier = new Cashier(this.#allProductBoxes);
       const orders = await cashier.handleOrders(this.#shoppingCart);
       const isMambership = await ConvenienceStoreController.#readUserAnswer('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
       ConvenienceStoreController.printReceipt(orders, isMambership);
-
       const continueShopping = await ConvenienceStoreController.#readUserAnswer(
         '\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n\n',
       );
@@ -45,12 +52,7 @@ class ConvenienceStoreController {
   async initialSetupStore() {
     const promotionCatalog = await ConvenienceStoreController.setUpPromotions();
     const { storedProducts, productRecords } = await ConvenienceStoreController.setUpProducts();
-    const allProductBoxes = ConvenienceStoreController.createAllProductBoxes(
-      productRecords,
-      storedProducts,
-      promotionCatalog,
-    );
-    this.#allProductBoxes = allProductBoxes;
+    this.#createAllProductBoxes(productRecords, storedProducts, promotionCatalog);
     return storedProducts;
   }
 
@@ -76,23 +78,27 @@ class ConvenienceStoreController {
     return uniqueProducts.map(({ name, price }) => new Product(name, price));
   }
 
-  static createBox(productBox, promotion, promotionCatalog) {
+  #createBox(productBox, promotion, promotionCatalog, targetProduct) {
     if (promotion !== 'null') {
       const targetPromotion = promotionCatalog.findPromotionByName(promotion);
-      return new PromotionProductBox(productBox, targetPromotion);
+      const promotionProductBox = new PromotionProductBox(productBox, targetPromotion);
+      this.#allProductBoxes.push(promotionProductBox);
+      this.#boxesInventory.addBox(promotionProductBox);
+      this.#allProductBoxes.push(new ProductBox(targetProduct));
+      this.#boxesInventory.addBox(new ProductBox(targetProduct));
+      return;
     }
-    return productBox;
+    this.#allProductBoxes.push(productBox);
+    this.#boxesInventory.addBox(productBox);
   }
 
-  static createAllProductBoxes(productRecords, products, promotionCatalog) {
-    const allProductBoxes = [];
+  #createAllProductBoxes(productRecords, products, promotionCatalog) {
     productRecords.forEach(({ name, price, quantity, promotion }) => {
       const targetProduct = products.find((product) => product.matchNameAndPrice(name, price));
       const productBox = new ProductBox(targetProduct, quantity);
 
-      allProductBoxes.push(ConvenienceStoreController.createBox(productBox, promotion, promotionCatalog));
+      this.#createBox(productBox, promotion, promotionCatalog, targetProduct);
     });
-    return allProductBoxes;
   }
 
   #getProductDetails() {
@@ -111,7 +117,7 @@ class ConvenienceStoreController {
     while (true) {
       try {
         await this.#setupShoppingCartFromInput(storedProducts);
-        return this.#validateCartWithStock(this.#allProductBoxes);
+        return this.#validateCartWithStock();
       } catch (error) {
         OutputView.printError(error);
       }
@@ -123,8 +129,8 @@ class ConvenienceStoreController {
     this.#shoppingCart = new ShoppingCart(storedProducts, inputItems);
   }
 
-  #validateCartWithStock(allProductBoxes) {
-    const stockManager = new StockManager(allProductBoxes);
+  #validateCartWithStock() {
+    const stockManager = new StockManager(this.#allProductBoxes);
     return stockManager.findValidBoxesForCartItems(this.#shoppingCart);
   }
 
