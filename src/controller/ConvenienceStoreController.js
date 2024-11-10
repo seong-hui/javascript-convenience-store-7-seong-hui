@@ -16,8 +16,6 @@ import STORE_MESSAGES from '../constants/storeMessages.js';
 import ABSOLUTE_FILE_PATH from '../constants/absolutefilePath.js';
 
 class ConvenienceStoreController {
-  #shoppingCart;
-
   #boxesInventory;
 
   #storedProducts;
@@ -28,8 +26,8 @@ class ConvenienceStoreController {
 
   async startShopping() {
     OutputView.printWellcomWithProducts(this.#boxesInventory.getDetails());
-    await this.requestShoppingItem();
-    const orderResult = await this.#manageOrders();
+    const shoppingCartItems = await this.requestShoppingItem();
+    const orderResult = await this.#manageOrders(shoppingCartItems);
     const isMembership = await ConvenienceStoreController.#askMembershipDiscount();
     OutputView.printReceipt(orderResult, isMembership);
   }
@@ -87,8 +85,8 @@ class ConvenienceStoreController {
   async requestShoppingItem() {
     while (true) {
       try {
-        await this.#setupShoppingCartFromInput(this.#storedProducts);
-        return this.#validateCartWithStock();
+        const shoppingCart = await this.#setupShoppingCartFromInput();
+        return this.#validateCartWithStock(shoppingCart);
       } catch (error) {
         OutputView.printError(error);
       }
@@ -97,16 +95,18 @@ class ConvenienceStoreController {
 
   async #setupShoppingCartFromInput() {
     const inputItems = await catchParseReturn(InputView.readItem, Parser.parseItemToRecords);
-    this.#shoppingCart = new ShoppingCart(this.#storedProducts, inputItems);
+    const shoppingCart = new ShoppingCart(this.#storedProducts, inputItems);
+    return shoppingCart;
   }
 
-  #validateCartWithStock() {
-    return StockManager.findValidBoxesForCartItems(this.#shoppingCart, this.#boxesInventory);
+  #validateCartWithStock(shoppingCart) {
+    StockManager.findValidBoxesForCartItems(shoppingCart, this.#boxesInventory);
+    return shoppingCart;
   }
 
-  async #manageOrders() {
+  async #manageOrders(shoppingCart) {
     const cashier = new Cashier(this.#boxesInventory);
-    const orders = await cashier.handleOrders(this.#shoppingCart, InputView.readUserConfirmation);
+    const orders = await cashier.handleOrders(shoppingCart, InputView.readUserConfirmation);
     return orders;
   }
 
