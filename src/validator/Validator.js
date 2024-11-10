@@ -24,6 +24,25 @@ const Validator = {
     const validAnswers = Object.values(VALID_ANSWERS);
     return validAnswers.includes(answer.trim());
   },
+
+  checkValidPromotionBuy(number) {
+    if (number < 1 || number > Number.MAX_SAFE_INTEGER) {
+      throw new Error(ERROR_MESSAGES.INVALID_PROMOTION);
+    }
+    return number;
+  },
+
+  checkValidPromotionGet(number) {
+    if (number !== 1) {
+      throw new Error(ERROR_MESSAGES.INVALID_PROMOTION);
+    }
+    return number;
+  },
+
+  checkIsNull(input) {
+    if (!input) throw new Error(ERROR_MESSAGES.INVALID_PROMOTION);
+    return input;
+  },
 };
 
 export default Validator;

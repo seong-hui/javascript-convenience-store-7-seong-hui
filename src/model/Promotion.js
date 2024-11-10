@@ -1,3 +1,5 @@
+import Validator from '../validator/Validator.js';
+
 class Promotion {
   #name;
 
@@ -10,9 +12,9 @@ class Promotion {
   #endDate;
 
   constructor(promotionRecord) {
-    this.#name = promotionRecord.name;
-    this.#buy = parseInt(promotionRecord.buy, 10);
-    this.#get = parseInt(promotionRecord.get, 10);
+    this.#name = Validator.checkIsNull(promotionRecord.name);
+    this.#buy = Validator.checkValidPromotionBuy(parseInt(promotionRecord.buy, 10));
+    this.#get = Validator.checkValidPromotionGet(parseInt(promotionRecord.get, 10));
     this.#startDate = new Date(promotionRecord.start_date);
     this.#endDate = new Date(promotionRecord.end_date);
   }
