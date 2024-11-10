@@ -1,3 +1,5 @@
+import DISCOUNT_POLICY from '../constants/discountPolicy.js';
+
 class Orders {
   #orderItems;
 
@@ -38,9 +40,10 @@ class Orders {
   calculateMembershipDiscountPrice(isMembership) {
     if (!isMembership) return 0;
     const nonPrmotionPrice = this.calcualteTotalNonPromotionPrice();
-    const membershipDiscount = Math.round(nonPrmotionPrice * 0.3);
+    const membershipDiscount = Math.round(nonPrmotionPrice * DISCOUNT_POLICY.MEMBERSHIP_DISCOUNT_PERSENT);
 
-    if (membershipDiscount >= 8000) return 8000;
+    if (membershipDiscount >= DISCOUNT_POLICY.MEMBERSHIP_DISCOUNT_LIMIT)
+      return DISCOUNT_POLICY.MEMBERSHIP_DISCOUNT_LIMIT;
     return membershipDiscount;
   }
 
