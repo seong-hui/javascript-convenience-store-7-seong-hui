@@ -1,3 +1,4 @@
+import { UNIT, NON_EXIST_QUANTITY } from '../constants/constants.js';
 import { formatWithUnit } from '../utils/formatUnit.js';
 
 class ProductBox {
@@ -15,8 +16,8 @@ class ProductBox {
   }
 
   #getQuantityText() {
-    if (this.#quantity <= 0) return '재고 없음';
-    return formatWithUnit(this.#quantity, '개');
+    if (this.#quantity <= 0) return NON_EXIST_QUANTITY;
+    return formatWithUnit(this.#quantity, UNIT.COUNT);
   }
 
   getProductName() {

@@ -1,10 +1,12 @@
+import { UNIT } from '../constants/constants.js';
+
 const formatWithUnit = function addUnit(value, unit) {
   return `${value}${unit}`;
 };
 
 const formatPriceWithUnit = function formatPriceWithUnit(value) {
-  const formatPrice = new Intl.NumberFormat('ko-KR').format(value);
-  return formatWithUnit(formatPrice, '원');
+  const formatPrice = value.toLocaleString();
+  return formatWithUnit(formatPrice, UNIT.WON);
 };
 
 export { formatPriceWithUnit, formatWithUnit };
