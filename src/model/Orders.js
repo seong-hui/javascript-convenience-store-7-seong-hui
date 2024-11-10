@@ -18,7 +18,7 @@ class Orders {
     return this.#orderItems.map((orderItem) => ({
       product: orderItem.getProductName(),
       price: orderItem.calculateOrderPrice(),
-      orderQuantity: orderItem.getOrderItemQuantity(),
+      totalQuantity: orderItem.calcualteTotalQuantity(),
       promotionQuantity: orderItem.getPromotionItemsQuantity(),
     }));
   }
@@ -41,21 +41,21 @@ class Orders {
     const totalDiscountPrice = this.calculateTotalDiscountPrice();
     const discountedAmount = totalPrice - totalDiscountPrice;
     const membershipDiscount = Math.round(discountedAmount * 0.3);
-    if (membershipDiscount >= 3000) return 3000;
+    if (membershipDiscount >= 8000) return 8000;
     return membershipDiscount;
   }
 
-  calculateTotalDue() {
+  calculateTotalDue(isMembership) {
     const totalPrice = this.calculateTotalPrice();
     const totalDiscountPrice = this.calculateTotalDiscountPrice();
-    const membershipDiscountPrice = this.calculateMembershipDiscountPrice();
+    const membershipDiscountPrice = this.calculateMembershipDiscountPrice(isMembership);
 
     return totalPrice - totalDiscountPrice - membershipDiscountPrice;
   }
 
   calculateTotalQuantity() {
     return this.#orderItems.reduce((sum, orderItem) => {
-      return sum + orderItem.getOrderItemQuantity();
+      return sum + orderItem.calcualteTotalQuantity();
     }, 0);
   }
 }

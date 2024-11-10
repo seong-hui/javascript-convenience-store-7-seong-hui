@@ -142,11 +142,10 @@ class ConvenienceStoreController {
       totalPrice: orders.calculateTotalPrice(),
       totalDiscountPrice: orders.calculateTotalDiscountPrice(),
       membershipDiscountPrice: orders.calculateMembershipDiscountPrice(isMambership),
-      totalDue: orders.calculateTotalDue(),
+      totalDue: orders.calculateTotalDue(isMambership),
       totalQuantity: orders.calculateTotalQuantity(),
     };
     OutputView.printAllPrices(priceDetails);
   }
 }
-
 export default ConvenienceStoreController;

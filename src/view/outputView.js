@@ -3,7 +3,7 @@ import { formatProductLine, formatPromotionLine } from '../utils/formatLine.js';
 
 const OutputView = {
   printError(error) {
-    MissionUtils.Console.print(`[ERROR] ${error}\n`);
+    MissionUtils.Console.print(`[ERROR] ${error.message}\n`);
   },
 
   printProducts(productDetails) {
@@ -13,8 +13,8 @@ const OutputView = {
   },
 
   printOrderDetails(orderDetails) {
-    orderDetails.forEach(({ product, orderQuantity, price }) => {
-      MissionUtils.Console.print(formatProductLine(product, orderQuantity, price));
+    orderDetails.forEach(({ product, totalQuantity, price }) => {
+      MissionUtils.Console.print(formatProductLine(product, totalQuantity, price));
     });
   },
 

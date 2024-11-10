@@ -33,11 +33,16 @@ class OrderItem {
   }
 
   calculateOrderPrice() {
-    return this.#orderItemQuantity * this.#product.getPrice();
+    const totalQuantity = this.calcualteTotalQuantity();
+    return totalQuantity * this.#product.getPrice();
   }
 
   calculateDiscountPrice() {
     return this.#promotionItemsQuantity * this.#product.getPrice();
+  }
+
+  calcualteTotalQuantity() {
+    return this.#orderItemQuantity + this.#promotionItemsQuantity;
   }
 }
 
