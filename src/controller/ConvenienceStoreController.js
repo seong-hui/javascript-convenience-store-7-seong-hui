@@ -20,26 +20,24 @@ class ConvenienceStoreController {
 
   #boxesInventory;
 
+  #storedProducts;
+
   constructor() {
     this.#boxesInventory = new BoxesInventory();
   }
 
-  async start() {
-    const storedProducts = await this.initialSetupStore();
-    while (true) {
-      OutputView.printWellcomWithProducts(this.#boxesInventory.getDetails());
-      await this.requestShoppingCart(storedProducts);
-      const orderHistory = await this.#manageOrders();
-      await ConvenienceStoreController.#printOrderReceiptWithMembership(orderHistory);
-      if (!(await InputView.askToContinueShopping())) break;
-    }
+  async startShopping() {
+    OutputView.printWellcomWithProducts(this.#boxesInventory.getDetails());
+    await this.requestShoppingItem();
+    const orderResult = await this.#manageOrders();
+    const isMembership = await ConvenienceStoreController.#askMembershipDiscount();
+    OutputView.printReceipt(orderResult, isMembership);
   }
 
   async initialSetupStore() {
     const promotionCatalog = await ConvenienceStoreController.setUpPromotions();
-    const { storedProducts, productRecords } = await ConvenienceStoreController.setUpProducts();
-    this.#createAllProductBoxes(productRecords, storedProducts, promotionCatalog);
-    return storedProducts;
+    const productRecords = await this.#setUpProducts();
+    this.#createAllProductBoxes(productRecords, promotionCatalog);
   }
 
   static async setUpPromotions() {
@@ -48,11 +46,11 @@ class ConvenienceStoreController {
     return ConvenienceStoreController.createPromotionCatalog(promotionRecords);
   }
 
-  static async setUpProducts() {
+  async #setUpProducts() {
     const productFileContent = await readFileContent(ABSOLUTE_FILE_PATH.PRODUCT);
     const productRecords = Parser.parseFileContentToRecords(productFileContent);
-    const storedProducts = ConvenienceStoreController.createProducts(productRecords);
-    return { storedProducts, productRecords };
+    this.#storedProducts = ConvenienceStoreController.createProducts(productRecords);
+    return productRecords;
   }
 
   static createProducts(productRecords) {
@@ -71,9 +69,9 @@ class ConvenienceStoreController {
     this.#boxesInventory.addBox(productBox);
   }
 
-  #createAllProductBoxes(productRecords, products, promotionCatalog) {
+  #createAllProductBoxes(productRecords, promotionCatalog) {
     productRecords.forEach(({ name, price, quantity, promotion }) => {
-      const targetProduct = products.find((product) => product.matchNameAndPrice(name, price));
+      const targetProduct = this.#storedProducts.find((product) => product.matchNameAndPrice(name, price));
       const productBox = new ProductBox(targetProduct, quantity);
 
       this.#createBox(productBox, promotion, promotionCatalog, targetProduct);
@@ -86,10 +84,10 @@ class ConvenienceStoreController {
     return promotionCatalog;
   }
 
-  async requestShoppingCart(storedProducts) {
+  async requestShoppingItem() {
     while (true) {
       try {
-        await this.#setupShoppingCartFromInput(storedProducts);
+        await this.#setupShoppingCartFromInput(this.#storedProducts);
         return this.#validateCartWithStock();
       } catch (error) {
         OutputView.printError(error);
@@ -97,9 +95,9 @@ class ConvenienceStoreController {
     }
   }
 
-  async #setupShoppingCartFromInput(storedProducts) {
+  async #setupShoppingCartFromInput() {
     const inputItems = await catchParseReturn(InputView.readItem, Parser.parseItemToRecords);
-    this.#shoppingCart = new ShoppingCart(storedProducts, inputItems);
+    this.#shoppingCart = new ShoppingCart(this.#storedProducts, inputItems);
   }
 
   #validateCartWithStock() {
@@ -112,9 +110,14 @@ class ConvenienceStoreController {
     return orders;
   }
 
-  static async #printOrderReceiptWithMembership(orders) {
-    const isMembership = await InputView.readUserConfirmation(STORE_MESSAGES.ASK_MEMBERSHIP_DISCOUNT);
-    OutputView.printReceipt(orders, isMembership);
+  static async #askMembershipDiscount() {
+    const isMambership = await InputView.readUserConfirmation(STORE_MESSAGES.ASK_MEMBERSHIP_DISCOUNT);
+    return isMambership;
+  }
+
+  static async askContinueShopping() {
+    const isContinue = await InputView.askToContinueShopping();
+    return isContinue;
   }
 }
 export default ConvenienceStoreController;

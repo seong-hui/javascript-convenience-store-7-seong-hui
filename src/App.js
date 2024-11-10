@@ -6,7 +6,12 @@ class App {
   }
 
   async run() {
-    await this.convenienceStore.start();
+    await this.convenienceStore.initialSetupStore();
+
+    while (true) {
+      await this.convenienceStore.startShopping();
+      if (!(await ConvenienceStoreController.askContinueShopping())) break;
+    }
   }
 }
 
