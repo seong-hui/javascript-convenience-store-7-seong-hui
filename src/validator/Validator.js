@@ -12,6 +12,10 @@ const Validator = {
   checkStockAvailable(availableQuantity, quantity) {
     if (availableQuantity < quantity) throw new Error('재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.');
   },
+
+  checkEnoughStockForPromotion(totalPromotionStock, quantity, additionalQuantity) {
+    return totalPromotionStock >= quantity + additionalQuantity;
+  },
 };
 
 export default Validator;
