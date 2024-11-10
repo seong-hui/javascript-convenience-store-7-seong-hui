@@ -39,6 +39,10 @@ class PromotionProductBox {
   reduceQuantity(amount) {
     this.#productBox.reduceQuantity(amount);
   }
+
+  matchName(name) {
+    return this.#productBox.matchName(name);
+  }
 }
 
 export default PromotionProductBox;

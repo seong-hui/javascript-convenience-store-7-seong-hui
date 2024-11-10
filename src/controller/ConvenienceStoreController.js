@@ -16,8 +16,6 @@ import BoxesInventory from '../model/BoxesInventory.js';
 class ConvenienceStoreController {
   #shoppingCart;
 
-  #allProductBoxes = [];
-
   #boxesInventory;
 
   constructor() {
@@ -29,10 +27,9 @@ class ConvenienceStoreController {
 
     while (true) {
       OutputView.printString('안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
-      // OutputView.printProducts(this.#getProductDetails());
       OutputView.printProducts(this.#boxesInventory.getDetails());
       await this.validateCartFromInput(storedProducts);
-      const cashier = new Cashier(this.#allProductBoxes);
+      const cashier = new Cashier(this.#boxesInventory);
       const orders = await cashier.handleOrders(this.#shoppingCart);
       const isMambership = await ConvenienceStoreController.#readUserAnswer('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
       ConvenienceStoreController.printReceipt(orders, isMambership);
@@ -82,13 +79,10 @@ class ConvenienceStoreController {
     if (promotion !== 'null') {
       const targetPromotion = promotionCatalog.findPromotionByName(promotion);
       const promotionProductBox = new PromotionProductBox(productBox, targetPromotion);
-      this.#allProductBoxes.push(promotionProductBox);
       this.#boxesInventory.addBox(promotionProductBox);
-      this.#allProductBoxes.push(new ProductBox(targetProduct));
       this.#boxesInventory.addBox(new ProductBox(targetProduct));
       return;
     }
-    this.#allProductBoxes.push(productBox);
     this.#boxesInventory.addBox(productBox);
   }
 
@@ -98,12 +92,6 @@ class ConvenienceStoreController {
       const productBox = new ProductBox(targetProduct, quantity);
 
       this.#createBox(productBox, promotion, promotionCatalog, targetProduct);
-    });
-  }
-
-  #getProductDetails() {
-    return this.#allProductBoxes.map((productBox) => {
-      return productBox.getDetails();
     });
   }
 
@@ -130,8 +118,7 @@ class ConvenienceStoreController {
   }
 
   #validateCartWithStock() {
-    const stockManager = new StockManager(this.#allProductBoxes);
-    return stockManager.findValidBoxesForCartItems(this.#shoppingCart);
+    return StockManager.findValidBoxesForCartItems(this.#shoppingCart, this.#boxesInventory);
   }
 
   static printReceipt(orders, isMambership) {

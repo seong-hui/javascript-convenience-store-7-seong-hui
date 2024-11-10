@@ -5,7 +5,7 @@ class ProductBox {
 
   #quantity;
 
-  constructor(product, quantity) {
+  constructor(product, quantity = 0) {
     this.#product = product;
     this.#quantity = parseInt(quantity, 10);
   }
@@ -29,6 +29,14 @@ class ProductBox {
 
   reduceQuantity(amount) {
     this.#quantity -= amount;
+  }
+
+  setQuantity(quantity) {
+    this.#quantity = quantity;
+  }
+
+  matchName(name) {
+    return this.#product.matchName(name);
   }
 }
 

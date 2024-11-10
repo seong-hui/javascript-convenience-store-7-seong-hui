@@ -1,45 +1,39 @@
-import ProductBox from './ProductBox.js';
-import PromotionProductBox from './PromotionProductBox.js';
 import { DateTimes } from '@woowacourse/mission-utils';
 import InputView from '../view/InputView.js';
 import OrderItem from './OrderItem.js';
 import Orders from './Orders.js';
+import StockManager from './StockManager.js';
 
 class Cashier {
-  #allProductBoxes;
+  #boxesInventory;
 
   #orders;
 
-  constructor(allProductBoxes) {
-    this.#allProductBoxes = allProductBoxes;
+  constructor(boxesInventory) {
+    this.#boxesInventory = boxesInventory;
     this.#orders = new Orders();
   }
 
   async handleOrders(shoppingCart) {
     const items = shoppingCart.getItems();
     for (let i = 0; i < items.length; i += 1) {
+      const { product, quantity } = items[i];
       await this.#processCartItemToOrder(items[i]);
     }
     return this.#orders;
   }
 
   async #processCartItemToOrder(item) {
-    const { productBox, promotionProductBox } = this.#findProductBoxbyName(item.product.getName());
+    const { productBox, promotionProductBox } = StockManager.findProductBoxbyName(
+      item.product.getName(),
+      this.#boxesInventory,
+    );
     if (!promotionProductBox) {
       this.#addRegularOrderItem(item.product, item.quantity, productBox);
       return;
     }
-    const totalPromotionStock = Cashier.#calculateTotalPromotionStock(promotionProductBox);
+    const totalPromotionStock = StockManager.calculateTotalStock(promotionProductBox);
     await this.#checkPromotionAndOrder(item, productBox, promotionProductBox, totalPromotionStock);
-  }
-
-  #findProductBoxbyName(productName) {
-    const matchingBoxes = this.#allProductBoxes.filter((box) => {
-      return box.getProductName() === productName;
-    });
-    const productBox = matchingBoxes.find((box) => box instanceof ProductBox);
-    const promotionProductBox = matchingBoxes.find((box) => box instanceof PromotionProductBox);
-    return { productBox, promotionProductBox };
   }
 
   async #checkPromotionAndOrder(item, productBox, promotionProductBox, totalPromotionStock) {
@@ -90,12 +84,6 @@ class Cashier {
     }
     this.#addPromotionalOrderItem(product, quantity - unappliedQuantity, promotionBox);
     return 0;
-  }
-
-  static #calculateTotalPromotionStock(promotionProductBox) {
-    let totalStock = 0;
-    if (promotionProductBox) totalStock += promotionProductBox.getQuantity();
-    return totalStock;
   }
 
   static #isEnoughStockForPromotion(totalPromotionStock, quantity, additionalQuantity) {

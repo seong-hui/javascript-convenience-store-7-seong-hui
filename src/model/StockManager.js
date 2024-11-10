@@ -1,7 +1,7 @@
 import Validator from '../validator/Validator.js';
 
 class StockManager {
-  static #findProductBoxbyName(productName, boxesInventory) {
+  static findProductBoxbyName(productName, boxesInventory) {
     const productBox = boxesInventory.findProductBoxByName(productName);
     const promotionProductBox = boxesInventory.findPromotionBoxByName(productName);
     return { productBox, promotionProductBox };
@@ -9,13 +9,13 @@ class StockManager {
 
   static findValidBoxesForCartItems(shoppingCart, boxesInventory) {
     shoppingCart.getItems().forEach(({ product, quantity }) => {
-      const { productBox, promotionProductBox } = StockManager.#findProductBoxbyName(product.getName(), boxesInventory);
-      const totalStock = StockManager.#calculateTotalStock(productBox, promotionProductBox);
+      const { productBox, promotionProductBox } = StockManager.findProductBoxbyName(product.getName(), boxesInventory);
+      const totalStock = StockManager.calculateTotalStock(promotionProductBox, productBox);
       Validator.checkStockAvailable(totalStock, quantity);
     });
   }
 
-  static #calculateTotalStock(productBox, promotionProductBox) {
+  static calculateTotalStock(promotionProductBox, productBox = null) {
     let totalStock = 0;
     if (productBox) totalStock += productBox.getQuantity();
     if (promotionProductBox) totalStock += promotionProductBox.getQuantity();
