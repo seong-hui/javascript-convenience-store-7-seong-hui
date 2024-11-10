@@ -18,6 +18,7 @@ const InputView = {
     while (!['Y', 'N'].includes(answer)) {
       answer = await InputView.readAnswer(promptMessage);
       answer = answer.trim();
+      if (!['Y', 'N'].includes(answer)) MissionUtils.Console.print('[ERROR] Y 또는 N만 입력 가능합니다.\n');
     }
     return answer;
   },
@@ -26,6 +27,11 @@ const InputView = {
     const answer = await InputView.getValidatedAnswer(message);
     if (answer === 'Y') return true;
     return false;
+  },
+
+  async askToContinueShopping() {
+    const userAnswer = await InputView.readUserConfirmation('\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n');
+    return userAnswer;
   },
 };
 

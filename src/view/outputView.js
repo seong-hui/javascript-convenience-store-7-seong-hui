@@ -37,6 +37,31 @@ const OutputView = {
   printString(string) {
     MissionUtils.Console.print(string);
   },
+
+  printReceipt(orders, isMambership) {
+    this.printString('\n==============W 편의점================');
+    this.printString('상품명\t\t\t수량\t금액');
+    this.printOrderDetails(orders.getOrdersDetails());
+    this.printPromotionDetails(orders.getOrdersDetails());
+    this.printString('======================================');
+    this.printPriceSummary(orders, isMambership);
+  },
+
+  printPriceSummary(orders, isMembership) {
+    const priceDetails = {
+      totalPrice: orders.calculateTotalPrice(),
+      totalDiscountPrice: orders.calculateTotalDiscountPrice(),
+      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(isMembership),
+      totalDue: orders.calculateTotalDue(isMembership),
+      totalQuantity: orders.calculateTotalQuantity(),
+    };
+    this.printAllPrices(priceDetails);
+  },
+
+  printWellcomWithProducts(productDetails) {
+    OutputView.printString('\n안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
+    OutputView.printProducts(productDetails);
+  },
 };
 
 export default OutputView;

@@ -24,19 +24,12 @@ class ConvenienceStoreController {
 
   async start() {
     const storedProducts = await this.initialSetupStore();
-
     while (true) {
-      OutputView.printString('안녕하세요. W편의점입니다.\n현재 보유하고 있는 상품입니다.\n');
-      OutputView.printProducts(this.#boxesInventory.getDetails());
-      await this.validateCartFromInput(storedProducts);
-      const cashier = new Cashier(this.#boxesInventory);
-      const orders = await cashier.handleOrders(this.#shoppingCart);
-      const isMambership = await InputView.readUserConfirmation('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
-      ConvenienceStoreController.printReceipt(orders, isMambership);
-      const continueShopping = await InputView.readUserConfirmation(
-        '\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)\n\n',
-      );
-      if (!continueShopping) break;
+      OutputView.printWellcomWithProducts(this.#boxesInventory.getDetails());
+      await this.requestShoppingCart(storedProducts);
+      const orderHistory = await this.#manageOrders();
+      await ConvenienceStoreController.#printOrderReceiptWithMembership(orderHistory);
+      if (!(await InputView.askToContinueShopping())) break;
     }
   }
 
@@ -95,7 +88,7 @@ class ConvenienceStoreController {
     return promotionCatalog;
   }
 
-  async validateCartFromInput(storedProducts) {
+  async requestShoppingCart(storedProducts) {
     while (true) {
       try {
         await this.#setupShoppingCartFromInput(storedProducts);
@@ -115,24 +108,15 @@ class ConvenienceStoreController {
     return StockManager.findValidBoxesForCartItems(this.#shoppingCart, this.#boxesInventory);
   }
 
-  static printReceipt(orders, isMambership) {
-    OutputView.printString('==============W 편의점================');
-    OutputView.printString('상품명\t\t\t수량\t금액');
-    OutputView.printOrderDetails(orders.getOrdersDetails());
-    OutputView.printPromotionDetails(orders.getOrdersDetails());
-    OutputView.printString('======================================');
-    ConvenienceStoreController.printAllPrices(orders, isMambership);
+  async #manageOrders() {
+    const cashier = new Cashier(this.#boxesInventory);
+    const orders = await cashier.handleOrders(this.#shoppingCart, InputView.readUserConfirmation);
+    return orders;
   }
 
-  static printAllPrices(orders, isMambership) {
-    const priceDetails = {
-      totalPrice: orders.calculateTotalPrice(),
-      totalDiscountPrice: orders.calculateTotalDiscountPrice(),
-      membershipDiscountPrice: orders.calculateMembershipDiscountPrice(isMambership),
-      totalDue: orders.calculateTotalDue(isMambership),
-      totalQuantity: orders.calculateTotalQuantity(),
-    };
-    OutputView.printAllPrices(priceDetails);
+  static async #printOrderReceiptWithMembership(orders) {
+    const isMembership = await InputView.readUserConfirmation('\n멤버십 할인을 받으시겠습니까? (Y/N)\n');
+    OutputView.printReceipt(orders, isMembership);
   }
 }
 export default ConvenienceStoreController;

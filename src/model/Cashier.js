@@ -1,125 +1,105 @@
-import { DateTimes } from '@woowacourse/mission-utils';
-import InputView from '../view/InputView.js';
 import OrderItem from './OrderItem.js';
 import Orders from './Orders.js';
 import StockManager from './StockManager.js';
+import Validator from '../validator/Validator.js';
+import generateNowDateTime from '../utils/generateNowDateTime.js';
 
 class Cashier {
   #boxesInventory;
 
   #orders;
 
+  #promotionProductBox;
+
+  #productBox;
+
   constructor(boxesInventory) {
     this.#boxesInventory = boxesInventory;
     this.#orders = new Orders();
   }
 
-  async handleOrders(shoppingCart) {
+  async handleOrders(shoppingCart, readUserConfirmation) {
     const items = shoppingCart.getItems();
     for (let i = 0; i < items.length; i += 1) {
       const { product, quantity } = items[i];
-      await this.#processCartItemToOrder(items[i]);
+      await this.#processCartItemToOrder(product, quantity, readUserConfirmation);
     }
     return this.#orders;
   }
 
-  async #processCartItemToOrder(item) {
-    const { productBox, promotionProductBox } = StockManager.findProductBoxbyName(
-      item.product.getName(),
-      this.#boxesInventory,
-    );
-    if (!promotionProductBox) {
-      this.#addRegularOrderItem(item.product, item.quantity, productBox);
-      return;
-    }
-    const totalPromotionStock = StockManager.calculateTotalStock(promotionProductBox);
-    await this.#checkPromotionAndOrder(item, productBox, promotionProductBox, totalPromotionStock);
+  async #processCartItemToOrder(product, quantity, readUserConfirmation) {
+    const allProductBox = StockManager.findProductBoxbyName(product.getName(), this.#boxesInventory);
+    this.#productBox = allProductBox.productBox;
+    this.#promotionProductBox = allProductBox.promotionProductBox;
+    if (!this.#promotionProductBox) return this.#addRegularOrderItem(product, quantity);
+    const totalPromotionStock = StockManager.calculateTotalStock(this.#promotionProductBox);
+    await this.#checkPromotionAndOrder(product, quantity, totalPromotionStock, readUserConfirmation);
+    return true;
   }
 
-  async #checkPromotionAndOrder(item, productBox, promotionProductBox, totalPromotionStock) {
-    const remainQuantity = await this.checkPromotion(
-      promotionProductBox,
+  async #checkPromotionAndOrder(product, quantity, totalPromotionStock, readUserConfirmation) {
+    const remainQuantity = await this.#checkPromotion(
       totalPromotionStock,
-      DateTimes.now(),
-      item.product,
-      item.quantity,
+      generateNowDateTime(),
+      product,
+      quantity,
+      readUserConfirmation,
     );
-    if (remainQuantity > 0) this.#addRegularOrderItem(item.product, remainQuantity, productBox);
+    if (remainQuantity > 0) this.#addRegularOrderItem(product, remainQuantity);
   }
 
-  async checkPromotion(promotionProductBox, totalStock, nowDateTime, product, quantity) {
-    if (!promotionProductBox.isActivePromotion(nowDateTime) || !promotionProductBox.getQuantity()) return quantity;
-    const additionalQuantity = promotionProductBox.calculateAdditionalQuantity(quantity);
-    if (Cashier.#isEnoughStockForPromotion(totalStock, quantity, additionalQuantity)) {
-      await this.#handleEnoughStock(product, quantity, additionalQuantity, promotionProductBox);
+  async #checkPromotion(totalStock, nowDateTime, product, quantity, readUserConfirmation) {
+    if (!this.#promotionProductBox.isActivePromotion(nowDateTime) || !this.#promotionProductBox.getQuantity())
+      return quantity;
+    const additionalQuantity = this.#promotionProductBox.calculateAdditionalQuantity(quantity);
+    if (Validator.checkEnoughStockForPromotion(totalStock, quantity, additionalQuantity)) {
+      await this.#handleEnoughStock(product, quantity, additionalQuantity, readUserConfirmation);
       return 0;
     }
-    const remainQuantity = await this.#handleNotEnoughStock(product, quantity, totalStock, promotionProductBox);
-    return remainQuantity;
+    return await this.#handleNotEnoughStock(product, quantity, totalStock, readUserConfirmation);
   }
 
-  async #handleEnoughStock(product, quantity, additionalQuantity, promotionBox) {
+  async #handleEnoughStock(product, quantity, additionalQuantity, readUserConfirmation) {
     if (additionalQuantity > 0) {
-      const agreeValue = await Cashier.#readAdditionalAnswer(additionalQuantity, product.getName());
-      this.#addPromotionalOrderItem(product, quantity + agreeValue, promotionBox);
+      const message = `\n현재 ${product.getName()}은(는) ${additionalQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`;
+      const agreeValue = await readUserConfirmation(message);
+      this.#addPromotionalOrderItem(product, quantity + agreeValue);
       return;
     }
-    this.#addPromotionalOrderItem(product, quantity, promotionBox);
+    this.#addPromotionalOrderItem(product, quantity);
   }
 
-  async #handleNotEnoughStock(product, quantity, totalStock, promotionBox) {
-    const unappliedQuantity = promotionBox.calculateUnappliedQuantity(totalStock, quantity);
+  async #handleNotEnoughStock(product, quantity, totalStock, readUserConfirmation) {
+    const unappliedQuantity = this.#promotionProductBox.calculateUnappliedQuantity(totalStock, quantity);
     if (unappliedQuantity > 0) {
-      const remains = await this.#processUnappliedLogic(unappliedQuantity, product, totalStock, promotionBox, quantity);
-      return remains;
+      return await this.#processUnappliedLogic(unappliedQuantity, product, totalStock, quantity, readUserConfirmation);
     }
     return quantity;
   }
 
-  async #processUnappliedLogic(unappliedQuantity, product, totalStock, promotionBox, quantity) {
-    const agreeValue = await Cashier.#readUserAnswer(unappliedQuantity, product.getName());
+  async #processUnappliedLogic(unappliedQuantity, product, totalStock, quantity, readUserConfirmation) {
+    const message = `\n현재 ${product.getName()} ${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`;
+    const agreeValue = await readUserConfirmation(message);
     if (agreeValue) {
-      this.#addPromotionalOrderItem(product, totalStock, promotionBox);
+      this.#addPromotionalOrderItem(product, totalStock);
       return quantity - totalStock;
     }
-    this.#addPromotionalOrderItem(product, quantity - unappliedQuantity, promotionBox);
+    this.#addPromotionalOrderItem(product, quantity - unappliedQuantity);
     return 0;
   }
 
-  static #isEnoughStockForPromotion(totalPromotionStock, quantity, additionalQuantity) {
-    return totalPromotionStock >= quantity + additionalQuantity;
-  }
-
-  static async #readAdditionalAnswer(additionalQuantity, name) {
-    const answer = await InputView.getValidatedAnswer(
-      `\n현재 ${name}은(는) ${additionalQuantity}개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)\n`,
-    );
-    if (answer === 'Y') return 1;
-    return 0;
-  }
-
-  static async #readUserAnswer(unappliedQuantity, name) {
-    const answer = await InputView.getValidatedAnswer(
-      `\n현재 ${name} ${unappliedQuantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)\n`,
-    );
-    if (answer === 'Y') return 1;
-    return 0;
-  }
-
-  #addPromotionalOrderItem(product, quantity, promotionProductBox) {
-    const promotionItemsQuantity = promotionProductBox.calculatePromotionItemsQuantity(quantity);
+  #addPromotionalOrderItem(product, quantity) {
+    const promotionItemsQuantity = this.#promotionProductBox.calculatePromotionItemsQuantity(quantity);
     const orderItemQuantity = quantity - promotionItemsQuantity;
     const orderItem = new OrderItem(product, true, orderItemQuantity, promotionItemsQuantity);
     this.#orders.addOrderItem(orderItem);
-    promotionProductBox.reduceQuantity(quantity);
-    // console.log(`프로모션 재고 구매 : 주문 개수 - ${orderItemQuantity}, 증정 개수 - ${promotionItemsQuantity}`);
+    this.#promotionProductBox.reduceQuantity(quantity);
   }
 
-  #addRegularOrderItem(product, orderItemQuantity, productBox) {
+  #addRegularOrderItem(product, orderItemQuantity) {
     const orderItem = new OrderItem(product, false, orderItemQuantity);
     this.#orders.addOrderItem(orderItem);
-    productBox.reduceQuantity(orderItemQuantity);
-    // console.log(`일반 재고 구매 :  주문개수 - ${orderItemQuantity}`);
+    this.#productBox.reduceQuantity(orderItemQuantity);
   }
 }
 export default Cashier;
