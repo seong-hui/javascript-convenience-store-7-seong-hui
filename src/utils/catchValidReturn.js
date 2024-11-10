@@ -1,4 +1,4 @@
-import OutputView from '../view/OutputView.js';
+import OutputView from '../view/outputView.js';
 
 const catchParseReturn = async function catchValidReturn(readItem, parseItem) {
   while (true) {
