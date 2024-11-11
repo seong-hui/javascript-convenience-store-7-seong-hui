@@ -2,7 +2,6 @@
 
 우아한테크코스 웹 프론트엔드 7기 4주차 미션 - 편의점을 구현한 저장소입니다.
 
-
 <img src="https://github.com/user-attachments/assets/eb2e0976-fa64-45d5-81e5-b2000fa41581" width="600"/>
 
 ## 목차
@@ -148,7 +147,8 @@ npm run start
 - [x] 구매 수량이 재고 수량을 초과한 경우
 - [x] (Y/N)에 대한 질문에 바르게 응답하지 않은 경우
 - [x] products.md나 promotions.md를 읽오지 못한 경우 에러 후 종료
-- [x] promotions.md의 get값이 1이상 Number.MAX_SAFE_INTEGER 이하가 아닌 경우 에러 후 종료
+- [x] promotions.md의 buy값이 1이상 Number.MAX_SAFE_INTEGER 이하가 아닌 경우 에러 후 종료
+- [x] promotions.md의 get값이 1이 아닌 경우 에러 후 종료 (Buy N Get 1 Free 조건의 의해)
 
 &nbsp;
 
