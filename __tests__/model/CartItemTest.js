@@ -24,7 +24,8 @@ test.each([
 
 test.each([
   ['일치하는 상품', new Product('사이다', 1000), true],
-  ['일치하지 않는 상품', new Product('콜라', 1000), false],
+  ['이름이 일치하지 않는 상품', new Product('콜라', 1000), false],
+  ['가격이 일치하지 않는 상품', new Product('사이다', 1500), false],
 ])('matchProduct 메서드 - %s', (_, otherProduct, expected) => {
   expect(cartItem.matchProduct(otherProduct)).toBe(expected);
 });
