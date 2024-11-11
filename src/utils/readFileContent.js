@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import OutputView from '../view/outputView.js';
 import { ERROR_MESSAGES } from '../constants/errorMessages.js';
 
 const readFileContent = async function readFileContent(absolutePath) {
@@ -9,8 +8,7 @@ const readFileContent = async function readFileContent(absolutePath) {
     const fileContent = await fs.promises.readFile(filePath, 'utf8');
     return fileContent;
   } catch (error) {
-    OutputView.printError(ERROR_MESSAGES.FAILED_READ_FILE(absolutePath));
-    throw error;
+    throw new Error(ERROR_MESSAGES.FAILED_READ_FILE(absolutePath));
   }
 };
 
