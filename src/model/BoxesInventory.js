@@ -9,12 +9,13 @@ class BoxesInventory {
   }
 
   addBox(box) {
-    const existingBox = this.findProductBoxByName(box.getProductName());
-    if (existingBox) {
-      existingBox.setQuantity(existingBox.getQuantity() + box.getQuantity());
-      return;
+    if (box instanceof ProductBox) {
+      const existingBox = this.findProductBoxByName(box.getProductName());
+      if (existingBox) {
+        existingBox.setQuantity(existingBox.getQuantity() + box.getQuantity());
+        return;
+      }
     }
-
     this.#allProductBoxes.push(box);
   }
 
