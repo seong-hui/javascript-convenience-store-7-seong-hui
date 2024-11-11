@@ -13,7 +13,7 @@ class CartItem {
   }
 
   matchProduct(product) {
-    return this.#product.getName() === product.getName();
+    return this.#product.matchNameAndPrice(product.getName(), product.getPrice());
   }
 
   getProductName() {
