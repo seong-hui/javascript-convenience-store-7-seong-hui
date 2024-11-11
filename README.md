@@ -2,6 +2,9 @@
 
 우아한테크코스 웹 프론트엔드 7기 4주차 미션 - 편의점을 구현한 저장소입니다.
 
+
+<img src="https://github.com/user-attachments/assets/eb2e0976-fa64-45d5-81e5-b2000fa41581" width="600"/>
+
 ## 목차
 
 - [편의점 소개](#편의점-소개)
